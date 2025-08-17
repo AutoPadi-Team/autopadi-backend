@@ -54,8 +54,9 @@ exports.register = async (req, res) => {
       html: `
           <div style=" background-color:#fff;">
             <div style="background:#fff;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.07);padding:36px 28px;width:100%;font-family:Verdana,sans-serif;">
-                <div style="text-align:center;padding-bottom:20px;">
-                    <h2 style="color:#2F63FF;margin:0;font-size:28px;font-weight:700;">AutoPadi Organisation</h2>
+                <div style="text-align:center;padding-bottom:20px; display: flex;">
+                  <img src="https://r4lcfqu82x.ufs.sh/f/dD4aXXWLaAu6z1dEu3aGer3Id1LO4gB6EXfs9qZvnWJtpojF" style="width: 50px; height: 50px; background-color: #2F63FF; border-radius: 50%; margin-top: -8px; margin-right: 16px;"  alt="">
+                  <h2 style="color:#2F63FF;margin:0;font-size:22px;font-weight:700;">AutoPadi Organisation</h2>
                 </div>
                 <div style="padding-bottom:10px;text-align:center;">
                     <p style="color:#444;font-size:16px;margin:0;">
@@ -132,8 +133,9 @@ exports.login = async (req, res) => {
       html: `
           <div style=" background-color:#fff;">
             <div style="background:#fff;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.07);padding:36px 28px;width:100%;font-family:Verdana,sans-serif;">
-                <div style="text-align:center;padding-bottom:20px;">
-                    <h2 style="color:#2F63FF;margin:0;font-size:28px;font-weight:700;">AutoPadi Organisation</h2>
+                <div style="text-align:center;padding-bottom:20px; display: flex;">
+                  <img src="https://r4lcfqu82x.ufs.sh/f/dD4aXXWLaAu6z1dEu3aGer3Id1LO4gB6EXfs9qZvnWJtpojF" style="width: 50px; height: 50px; background-color: #2F63FF; border-radius: 50%; margin-top: -8px; margin-right: 16px;"  alt="">
+                  <h2 style="color:#2F63FF;margin:0;font-size:22px;font-weight:700;">AutoPadi Organisation</h2>
                 </div>
                 <div style="padding-bottom:10px;text-align:center;">
                     <p style="color:#444;font-size:16px;margin:0;">
@@ -237,8 +239,9 @@ exports.resendVerificationCode = async (req, res) => {
       html: `
           <div style=" background-color:#fff;">
             <div style="background:#fff;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.07);padding:36px 28px;width:100%;font-family:Verdana,sans-serif;">
-                <div style="text-align:center;padding-bottom:20px;">
-                    <h2 style="color:#2F63FF;margin:0;font-size:28px;font-weight:700;">AutoPadi Organisation</h2>
+                <div style="text-align:center;padding-bottom:20px; display: flex;">
+                  <img src="https://r4lcfqu82x.ufs.sh/f/dD4aXXWLaAu6z1dEu3aGer3Id1LO4gB6EXfs9qZvnWJtpojF" style="width: 50px; height: 50px; background-color: #2F63FF; border-radius: 50%; margin-top: -8px; margin-right: 16px;"  alt="">
+                  <h2 style="color:#2F63FF;margin:0;font-size:22px;font-weight:700;">AutoPadi Organisation</h2>
                 </div>
                 <div style="padding-bottom:10px;text-align:center;">
                     <p style="color:#444;font-size:16px;margin:0;">
