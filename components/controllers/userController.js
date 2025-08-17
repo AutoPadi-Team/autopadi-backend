@@ -351,3 +351,26 @@ exports.getUserLocation = async (req, res) => {
     res.status(500).json({ message: `Server error: ${error.message}` });
   }
 };
+
+// get user data by id
+exports.getUserDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id).select("-password");
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "user not found",
+      });
+    };
+
+    res.status(200).json({
+      success: true,
+      message: "user retrieved successfully",
+      userDetails: user
+    })
+    
+  } catch (error) {
+    res.status(500).json({ message: `Server error: ${error.message}` });
+  }
+}
