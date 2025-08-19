@@ -21,6 +21,8 @@ const vehicleSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+}, {
+    timeseries: true
 });
 
 module.exports = mongoose.model("Vehicle", vehicleSchema);
