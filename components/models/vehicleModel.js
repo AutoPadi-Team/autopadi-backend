@@ -6,11 +6,21 @@ const vehicleSchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
-    Image: {
+    image: {
         type: String,
-        default: ""
     },
-
+    carBrand: {
+        type: String,
+        required: true,
+    },
+    carModel: {
+        type: String,
+        required: true,
+    },
+    carYear: {
+        type: String,
+        required: true,
+    },
 });
 
-module.exports = mongoose.model("vehicles", vehicleSchema);
+module.exports = mongoose.model("Vehicle", vehicleSchema);

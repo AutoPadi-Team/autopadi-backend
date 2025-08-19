@@ -58,7 +58,7 @@ exports.register = async (req, res) => {
                   <img src="https://r4lcfqu82x.ufs.sh/f/dD4aXXWLaAu6z1dEu3aGer3Id1LO4gB6EXfs9qZvnWJtpojF" style="width: 50px; height: 50px; background-color: #2F63FF; border-radius: 50%; margin-top: -8px; margin-right: 16px;"  alt="">
                   <h2 style="color:#2F63FF;margin:0;font-size:22px;font-weight:700;">AutoPadi Organisation</h2>
                 </div>
-                <div style="padding-bottom:10px;text-align:center;">
+                <div style="padding-bottom:10px;text-align:left;">
                     <p style="color:#444;font-size:16px;margin:0;">
                         Dear <span style="font-weight:600;">${savedUser.fullName}</span>,
                     </p>
@@ -137,7 +137,7 @@ exports.login = async (req, res) => {
                   <img src="https://r4lcfqu82x.ufs.sh/f/dD4aXXWLaAu6z1dEu3aGer3Id1LO4gB6EXfs9qZvnWJtpojF" style="width: 50px; height: 50px; background-color: #2F63FF; border-radius: 50%; margin-top: -8px; margin-right: 16px;"  alt="">
                   <h2 style="color:#2F63FF;margin:0;font-size:22px;font-weight:700;">AutoPadi Organisation</h2>
                 </div>
-                <div style="padding-bottom:10px;text-align:center;">
+                <div style="padding-bottom:10px;text-align:left;">
                     <p style="color:#444;font-size:16px;margin:0;">
                         Dear <span style="font-weight:600;">${user.fullName}</span>,
                     </p>
@@ -237,13 +237,21 @@ exports.resendVerificationCode = async (req, res) => {
       email: user.email,
       subject: "Resend Verification Code",
       html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Verification Code</title>
+        </head>
+        <body>
           <div style=" background-color:#fff;">
             <div style="background:#fff;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.07);padding:36px 28px;width:100%;font-family:Verdana,sans-serif;">
-                <div style="text-align:center;padding-bottom:20px; display: flex;">
+                <div style="text-align:center;padding-bottom:20px; display: flex; align-items: center; justify-content: center;">
                   <img src="https://r4lcfqu82x.ufs.sh/f/dD4aXXWLaAu6z1dEu3aGer3Id1LO4gB6EXfs9qZvnWJtpojF" style="width: 50px; height: 50px; background-color: #2F63FF; border-radius: 50%; margin-top: -8px; margin-right: 16px;"  alt="">
                   <h2 style="color:#2F63FF;margin:0;font-size:22px;font-weight:700;">AutoPadi Organisation</h2>
                 </div>
-                <div style="padding-bottom:10px;text-align:center;">
+                <div style="padding-bottom:10px;text-align:left;">
                     <p style="color:#444;font-size:16px;margin:0;">
                         Dear <span style="font-weight:600;">${user.fullName}</span>,
                     </p>
@@ -268,6 +276,9 @@ exports.resendVerificationCode = async (req, res) => {
                 </div>
             </div>
         </div>
+        </body>
+        </html>
+
       `,
     });
     res.json({
@@ -355,6 +366,26 @@ exports.getUserLocation = async (req, res) => {
   }
 };
 
+// get all users data 
+exports.getAllUserDetails = async (req, res) => {
+  try {
+    const user = await User.find().select("-password").sort({ createdAt: -1});
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "users not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "users retrieved successfully",
+      users: user,
+    });
+  } catch (error) {
+    res.status(500).json({ message: `Server error: ${error.message}` });
+  }
+};
 // get user data by id
 exports.getUserDetails = async (req, res) => {
   try {
@@ -365,15 +396,40 @@ exports.getUserDetails = async (req, res) => {
         success: false,
         message: "user not found",
       });
-    };
+    }
 
     res.status(200).json({
       success: true,
       message: "user retrieved successfully",
-      userDetails: user
+      userDetails: user,
+    });
+  } catch (error) {
+    res.status(500).json({ message: `Server error: ${error.message}` });
+  }
+};
+
+// delete user date
+exports.deleteUserDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user= await User.findByIdAndDelete(id);
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: "user not found"
+      })
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `${user.fullName} account deleted successfully 😊`
     })
     
   } catch (error) {
-    res.status(500).json({ message: `Server error: ${error.message}` });
+    res.status(500).json({
+      success: false,
+      message: `Internal server error: ${error.message}`,
+    });
   }
 }

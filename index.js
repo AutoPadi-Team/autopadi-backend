@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const { connectDB } = require("./components/dbconfig/dbConfig");
 const userRoutes = require("./components/routes/userRoute");
+const vehicleRoutes = require("./components/routes/vehicleRoute");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(cors());
 
 // Use user routes
 app.use("/api", userRoutes);
+app.use("/api", vehicleRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello World");

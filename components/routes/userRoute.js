@@ -1,4 +1,15 @@
-const { register, login, verifyEmail, resendVerificationCode, userRole, userLocation, getUserLocation, getUserDetails } = require("../controllers/userController");
+const {
+  register,
+  login,
+  verifyEmail,
+  resendVerificationCode,
+  userRole,
+  userLocation,
+  getUserLocation,
+  getUserDetails,
+  getAllUserDetails,
+  deleteUserDetails,
+} = require("../controllers/userController");
 const { verifyToken } = require("../middleware/authenticate");
 const express = require("express");
 const router = express.Router();
@@ -11,5 +22,7 @@ router.patch("/select-role/:id", verifyToken, userRole); // select user role
 router.patch("/add-location/:id", verifyToken, userLocation); // add user location
 router.get("/get-location/:id", verifyToken, getUserLocation) // get user location
 router.get("/user-details/:id", verifyToken, getUserDetails); // retrieve user details
+router.get("/users-details", verifyToken, getAllUserDetails); // retrieve all users details
+router.delete("/delete-user/:id", verifyToken, deleteUserDetails) // delete user account
 
 module.exports = router;
