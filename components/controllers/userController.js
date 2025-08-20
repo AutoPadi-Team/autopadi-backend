@@ -3,6 +3,7 @@ const User = require("../models/usersModel");
 const { generateToken } = require("../middleware/authenticate");
 const { sendMail } = require("../mailer/sendMail");
 const verificationCode = require("../models/verificationCode");
+const userProfile = require("../models/userProfile");
 
 // generate a verification code
 const generateVerificationCode = () => {
@@ -14,6 +15,13 @@ const generateVerificationCode = () => {
 exports.register = async (req, res) => {
   try {
     const { fullName, email, phoneNumber, password } = req.body;
+
+    if(!email.includes("@")){
+      return res.status(404).json({
+        success: false,
+        message: `${email} is not a valid email.`
+      })
+    }
 
     // Check if user exists
     const existingUser = await User.findOne({
@@ -35,6 +43,16 @@ exports.register = async (req, res) => {
       password: hashedPassword,
     });
     const savedUser = await user.save();
+    
+
+    // create a profile
+    const profile = new userProfile({
+      userId: user._id,
+      fullName: user.fullName,
+      phoneNumber: user.phoneNumber,
+      email: user.email,
+    });
+    const savedProfile = await profile.save();
 
     // Generate JWT
     const token = generateToken(user);
@@ -93,6 +111,7 @@ exports.register = async (req, res) => {
         fullName: savedUser.fullName,
         email: savedUser.email,
       },
+      profile: savedProfile,
       token,
       mailInfo,
     });
@@ -366,10 +385,10 @@ exports.getUserLocation = async (req, res) => {
   }
 };
 
-// get all users data 
+// get all users data
 exports.getAllUserDetails = async (req, res) => {
   try {
-    const user = await User.find().select("-password").sort({ createdAt: -1});
+    const user = await User.find().select("-password").sort({ createdAt: -1 });
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -413,23 +432,22 @@ exports.deleteUserDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const user= await User.findByIdAndDelete(id);
+    const user = await User.findByIdAndDelete(id);
     if (!user) {
       res.status(404).json({
         success: false,
-        message: "user not found"
-      })
+        message: "user not found",
+      });
     }
 
     res.status(200).json({
       success: true,
-      message: `${user.fullName} account deleted successfully 😊`
-    })
-    
+      message: `${user.fullName} account deleted successfully 😊`,
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
       message: `Internal server error: ${error.message}`,
     });
   }
-}
+};

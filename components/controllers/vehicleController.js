@@ -21,7 +21,7 @@ exports.addVehicle = async (req, res) => {
     }
 
     // create a vehicle data
-    const userVehicle = await new Vehicle({
+    const userVehicle = new Vehicle({
       driverId,
       image,
       carBrand,

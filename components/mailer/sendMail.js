@@ -12,6 +12,9 @@ const transporter = nodemailer.createTransport({
 });
 
 exports.sendMail = async ({ email, subject, html }) => {
+   if (!email) {
+     console.error("No recipient email provided");
+   }
   try {
     const info = await transporter.sendMail({
       from: `"AutoPadi" ${process.env.USER}`,
@@ -22,6 +25,7 @@ exports.sendMail = async ({ email, subject, html }) => {
 
     // console.log("Message sent:", info.messageId);
     return info; // Return the info object for further processing if needed
+
   } catch (error) {
     console.error(`Error sending email: ${error.message}`);
     throw error;
