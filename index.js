@@ -19,7 +19,7 @@ app.use("/api", userRoutes);
 app.use("/api", vehicleRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Hello World");
+  res.json({ message: "AutoPadi server running successfully."});
 });
 
 app.listen(port, () => {
