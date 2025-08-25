@@ -4,6 +4,7 @@ const { connectDB } = require("./components/dbconfig/dbConfig");
 const userRoutes = require("./components/routes/userRoute");
 const vehicleRoutes = require("./components/routes/vehicleRoute");
 const profileRoute = require("./components/routes/profileRoute");
+const businessProfileRoute = require("./components/routes/businessProfileRoute");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -18,7 +19,8 @@ app.use(cors());
 // Use user routes
 app.use("/api", userRoutes);
 app.use("/api", vehicleRoutes);
-app.use("/api", profileRoute)
+app.use("/api", profileRoute);
+app.use("/api", businessProfileRoute);
 
 app.get("/", (req, res) => {
   res.json({ message: "AutoPadi server running successfully."});
