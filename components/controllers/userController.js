@@ -4,6 +4,7 @@ const { generateToken } = require("../middleware/authenticate");
 const { sendMail } = require("../mailer/sendMail");
 const verificationCode = require("../models/verificationCode");
 const userProfile = require("../models/userProfile");
+const { connect } = require("mongoose");
 
 // generate a verification code
 const generateVerificationCode = () => {
@@ -192,7 +193,14 @@ exports.login = async (req, res) => {
         id: user._id,
         fullName: user.fullName,
         email: user.email,
-        phoneNumber,
+        phoneNumber: user.phoneNumber,
+        isVerified: user.isVerified,
+        role: user.role,
+        connectors: user.connectors,
+        connectorsCount: user.connectorsCount,
+        connected: user.connected,
+        connectedCount: user.connectedCount,
+        createdAt: user.createdAt,
       },
       code: codeSaved.code,
       mailInfo,

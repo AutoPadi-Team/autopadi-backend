@@ -22,6 +22,10 @@ const profileSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    businessId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "BusinessProfile",
+    },
 }, {
     timestamps: true
 });
