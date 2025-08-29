@@ -1,10 +1,10 @@
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../models/usersModel");
-const { generateToken } = require("../middleware/authenticate");
+const { generateToken, generateRefreshToken } = require("../middleware/authenticate");
 const { sendMail } = require("../mailer/sendMail");
 const verificationCode = require("../models/verificationCode");
 const userProfile = require("../models/userProfile");
-const { connect } = require("mongoose");
 
 // generate a verification code
 const generateVerificationCode = () => {
@@ -17,11 +17,11 @@ exports.register = async (req, res) => {
   try {
     const { fullName, email, phoneNumber, password } = req.body;
 
-    if(!email.includes("@")){
+    if (!email.includes("@")) {
       return res.status(404).json({
         success: false,
-        message: `${email} is not a valid email.`
-      })
+        message: `${email} is not a valid email.`,
+      });
     }
 
     // Check if user exists
@@ -44,7 +44,6 @@ exports.register = async (req, res) => {
       password: hashedPassword,
     });
     const savedUser = await user.save();
-    
 
     // create a profile
     const profile = new userProfile({
@@ -57,6 +56,22 @@ exports.register = async (req, res) => {
 
     // Generate JWT
     const token = generateToken(user);
+
+    // generate refresh token
+    const refreshToken = generateRefreshToken(user);
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 120 * 24 * 60 * 60 * 1000, // 120 days
+    });
+
+    // save date of the refresh token expiry
+    savedUser.refreshTokenExpiredAt = new Date(
+      Date.now() + 120 * 24 * 60 * 60 * 1000
+    ); // 120 days from now
+    await savedUser.save();
 
     // save the verification code
     const generatedCode = generateVerificationCode();
@@ -137,6 +152,20 @@ exports.login = async (req, res) => {
 
     // Generate JWT
     const token = generateToken(user);
+
+    // generate refresh token
+    const refreshToken = generateRefreshToken(user);
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 30 * 1000, // 120 days
+    });
+
+    // save date of the refresh token expiry
+    user.refreshTokenExpiredAt = new Date(Date.now() + 120 * 24 * 60 * 60 * 1000); // 120 days from now
+    await user.save();
 
     // save the verification code
     const generatedCode = generateVerificationCode();
@@ -457,5 +486,53 @@ exports.deleteUserDetails = async (req, res) => {
       success: false,
       message: `Internal server error: ${error.message}`,
     });
+  }
+};
+
+// generate new token
+exports.generateNewToken = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    
+    if(!refreshToken){
+      return res.status(401).json({ message: "No token provided." });
+    }
+
+    // verify refresh token
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET_KEY);
+    if(!decoded){
+      return res.status(403).json({ message: "Invalid token." });
+    }
+
+    // check if user exists
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // check if refresh token is close to expiry (3 days)
+    if(user.refreshTokenExpiredAt - Date.now() < 3 * 24 * 60 * 60 * 1000){
+      const newRefreshToken = generateRefreshToken(user);
+      res.cookie("refreshToken", newRefreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 120 * 24 * 60 * 60 * 1000, // 120 days
+      });
+
+      // update refresh token expiry date
+      user.refreshTokenExpiredAt = new Date(Date.now() + 120 * 24 * 60 * 60 * 1000); // 120 days from now
+      await user.save();
+    }
+
+    // generate new token
+    const newToken = generateToken(user);
+    res.status(200).json({
+      message: "New token generated successfully",
+      token: newToken,
+    });
+    
+  } catch (error) {
+    res.status(500).json({ message: `Internal server error: ${error.message}` });
   }
 };

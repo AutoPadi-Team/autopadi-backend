@@ -4,7 +4,9 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const secretKey = process.env.JWT_SECRET_KEY;
+const refreshSecretKey = process.env.REFRESH_SECRET_KEY;
 
+// Function to generate a random token
 exports.generateToken = (user) => {
   const payload = {
     id: user._id,
@@ -19,6 +21,23 @@ exports.generateToken = (user) => {
   return token;
 };
 
+// Function to generate a random refresh token
+exports.generateRefreshToken = (user) => {
+  const payload = {
+    id: user._id,
+    fullName: user.fullName,
+    email: user.email,
+    role: user.role,
+  };
+
+  const token = jwt.sign(payload, refreshSecretKey, {
+    expiresIn: "120d",
+  });
+
+  return token;
+};
+
+// Middleware to verify JWT token
 exports.verifyToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   if (!authHeader) {

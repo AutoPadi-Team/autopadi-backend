@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const { connectDB } = require("./components/dbconfig/dbConfig");
 const userRoutes = require("./components/routes/userRoute");
 const vehicleRoutes = require("./components/routes/vehicleRoute");
@@ -18,6 +19,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cors());
+app.use(cookieParser());
 
 // Use user routes
 app.use("/api", userRoutes);

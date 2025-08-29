@@ -9,6 +9,7 @@ const {
   getUserDetails,
   getAllUserDetails,
   deleteUserDetails,
+  generateNewToken,
 } = require("../controllers/userController");
 const { verifyToken } = require("../middleware/authenticate");
 const express = require("express");
@@ -24,5 +25,6 @@ router.get("/get-location/:id", verifyToken, getUserLocation) // get user locati
 router.get("/user-details/:id", verifyToken, getUserDetails); // retrieve user details
 router.get("/users-details", verifyToken, getAllUserDetails); // retrieve all users details
 router.delete("/delete-user/:id", verifyToken, deleteUserDetails) // delete user account
+router.get("/refresh-token", generateNewToken); // generate new access token using refresh token 
 
 module.exports = router;

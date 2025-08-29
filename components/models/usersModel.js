@@ -38,6 +38,9 @@ const usersSchema = new mongoose.Schema(
       enum: ["driver", "mechanic", "admin"],
       default: "driver",
     },
+    refreshTokenExpiredAt: {
+      type: Date,
+    },
     connectors: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     connectorsCount: { type: Number, default: 0 },
     connected: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
