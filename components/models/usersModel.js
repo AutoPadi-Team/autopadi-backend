@@ -41,6 +41,10 @@ const usersSchema = new mongoose.Schema(
     refreshTokenExpiredAt: {
       type: Date,
     },
+    premiumMember: {
+      type: Boolean,
+      default: false,
+    },
     connectors: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     connectorsCount: { type: Number, default: 0 },
     connected: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
