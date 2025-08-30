@@ -17,7 +17,7 @@ exports.createServicePlan = async (req, res) => {
         }
 
         // check if package already exists for the mechanic
-        const existingPlan = await MechanicServicePlan.findOne({ package: packageId });
+        const existingPlan = await MechanicServicePlan.findOne({$and: [{ package: packageId }, { mechanic }]});
         if (existingPlan) { 
             return res.status(400).json({
                 success: false,
@@ -85,7 +85,7 @@ exports.updateServicePlan = async (req, res) => {
 // get all service plans
 exports.getAllServicePlans = async (req, res) => {
     try {
-        const plans = await MechanicServicePlan.find().populate("package", "title lowPrice highPrice benefits");
+        const plans = await MechanicServicePlan.find().populate("package", "title lowPrice highPrice benefits").sort({ createdAt: -1 });
 
         res.status(200).json({
             success: true,
