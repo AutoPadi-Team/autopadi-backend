@@ -1,6 +1,7 @@
 const cloudinary = require("../middleware/cloudinary");
 const BusinessProfile = require("../models/businessProfile");
 const Profile = require("../models/userProfile");
+const User = require("../models/usersModel");
 
 // Create business profile
 exports.createBusinessProfile = async (req, res) => {
@@ -8,6 +9,12 @@ exports.createBusinessProfile = async (req, res) => {
     const {
       mechanicId,
       mechanicType,
+      businessName,
+      businessPhoneNumber,
+      businessEmail,
+      yearsOfExperience,
+      brandServiced,
+      aboutBusiness,
       location,
       servicesOffered,
       paymentMethod,
@@ -64,25 +71,31 @@ exports.createBusinessProfile = async (req, res) => {
     const business = new BusinessProfile({
       mechanicId,
       mechanicType,
+      businessName,
+      businessPhoneNumber,
+      businessEmail,
+      yearsOfExperience,
+      brandServiced: brandServiced.split(",").map((item) => item.trim()),
+      aboutBusiness,
       certificate: documentCertificate.secure_url,
       location,
-      servicesOffered,
+      servicesOffered: servicesOffered.split(",").map((item) => item.trim()),
       picture: image.secure_url,
       paymentMethod,
     });
     const savedBusinessProfile = await business.save();
 
-    // update user profile with businessId
-    const profile = await Profile.findOneAndUpdate(
-      { userId: savedBusinessProfile.mechanicId },
-      { businessId: savedBusinessProfile._id },
+    // update user with businessDetails
+    const user = await User.findByIdAndUpdate(
+      savedBusinessProfile.mechanicId,
+      { businessDetails: savedBusinessProfile._id },
       { new: true }
     );
 
-    if (!profile) {
+    if (!user) {
       return res.status(404).json({
         success: false,
-        message: "Profile not found.",
+        message: "User not found.",
       });
     }
 
@@ -90,7 +103,7 @@ exports.createBusinessProfile = async (req, res) => {
       success: true,
       message: "business profile created successfully.",
       savedBusinessProfile,
-      profile,
+      user: user.businessDetails,
     });
   } catch (error) {
     res

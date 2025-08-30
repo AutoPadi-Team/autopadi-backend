@@ -1,4 +1,3 @@
-const { verify } = require("crypto");
 const mongoose = require("mongoose");
 
 const businessProfileSchema = mongoose.Schema({
@@ -7,8 +6,29 @@ const businessProfileSchema = mongoose.Schema({
         ref: "User",
         required: true,
     },
+    businessName: {
+        type: String,
+        required: true,
+    },
+    businessPhoneNumber: {
+        type: String,
+    },
+    businessEmail: {
+        type: String,
+    },
     mechanicType: {
         type: String,
+        required: true,
+    },
+    aboutBusiness: {
+        type: String,
+    },
+    yearsOfExperience: {
+        type: String,
+        required: true,
+    },
+    brandServiced: {
+        type: [String],
         required: true,
     },
     certificate: {

@@ -36,7 +36,7 @@ exports.updateProfile = async (req, res) => {
         // update for user account
         const user = await User.findByIdAndUpdate(
           { _id: userId },
-          { fullName: profile.fullName, email: profile.email, phoneNumber: profile.phoneNumber },
+          { fullName: profile.fullName, email: profile.email, phoneNumber: profile.phoneNumber, profileImage: profile._id },
           { new: true }
         );
 

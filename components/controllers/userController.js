@@ -442,11 +442,12 @@ exports.getAllUserDetails = async (req, res) => {
     res.status(500).json({ message: `Server error: ${error.message}` });
   }
 };
+
 // get user data by id
 exports.getUserDetails = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id).select("-password");
+    const user = await User.findById(id).select("-password").populate("profileImage", "image").populate("businessDetails");
     if (!user) {
       return res.status(404).json({
         success: false,

@@ -9,6 +9,7 @@ const businessProfileRoute = require("./components/routes/businessProfileRoute")
 const connectRoute = require("./components/routes/connectRoute");
 const adminServicePlanRoute = require('./components/routes/adminServicePlanRoute');
 const mechanicServicePlanRoute = require('./components/routes/mechanicServicePlanRoute');
+const adminPremiumPlanRoute = require('./components/routes/adminPremiumPlanRoute');
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use("/api", profileRoute);
 app.use("/api", businessProfileRoute);
 app.use("/api", connectRoute);
 app.use("/api", adminServicePlanRoute);
+app.use("/api", adminPremiumPlanRoute);
 app.use("/api", mechanicServicePlanRoute);
 
 // Default route
