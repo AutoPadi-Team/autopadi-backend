@@ -225,6 +225,7 @@ exports.login = async (req, res) => {
         phoneNumber: user.phoneNumber,
         isVerified: user.isVerified,
         role: user.role,
+        premiumMember: user.premiumMember,
         connectors: user.connectors,
         connectorsCount: user.connectorsCount,
         connected: user.connected,
