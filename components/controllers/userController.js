@@ -127,9 +127,9 @@ exports.register = async (req, res) => {
         fullName: savedUser.fullName,
         email: savedUser.email,
       },
-      profile: savedProfile,
+      profile: savedProfile.image,
       token,
-      mailInfo,
+      info: mailInfo.response,
     });
   } catch (err) {
     res.status(500).json({ message: `Server error ${err.message}` });
@@ -149,23 +149,6 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
       return res.status(400).json({ message: "Invalid credentials." });
-
-    // Generate JWT
-    const token = generateToken(user);
-
-    // generate refresh token
-    const refreshToken = generateRefreshToken(user);
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 30 * 1000, // 120 days
-    });
-
-    // save date of the refresh token expiry
-    user.refreshTokenExpiredAt = new Date(Date.now() + 120 * 24 * 60 * 60 * 1000); // 120 days from now
-    await user.save();
 
     // save the verification code
     const generatedCode = generateVerificationCode();
@@ -214,6 +197,25 @@ exports.login = async (req, res) => {
       `,
     });
 
+    // Generate JWT
+    const token = generateToken(user);
+
+    // generate refresh token
+    const refreshToken = generateRefreshToken(user);
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 30 * 1000, // 120 days
+    });
+
+    // save date of the refresh token expiry
+    user.refreshTokenExpiredAt = new Date(
+      Date.now() + 120 * 24 * 60 * 60 * 1000
+    ); // 120 days from now
+    await user.save();
+
     res.json({
       success: false,
       message: "logged in successfully",
@@ -233,7 +235,7 @@ exports.login = async (req, res) => {
         createdAt: user.createdAt,
       },
       code: codeSaved.code,
-      mailInfo,
+      info: mailInfo.response,
     });
   } catch (err) {
     res.status(500).json({ message: `Server error: ${err.message}` });
@@ -276,7 +278,7 @@ exports.resendVerificationCode = async (req, res) => {
 
     // Find user
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found." });
+    if (!user) return res.status(404).json({ success: false, message: "User not found." });
 
     // If code is valid, delete it
     await verificationCode.deleteOne({ email });
@@ -338,6 +340,7 @@ exports.resendVerificationCode = async (req, res) => {
 
       `,
     });
+    
     res.json({
       message: "Verification code resent successfully.",
       code: generatedCode,

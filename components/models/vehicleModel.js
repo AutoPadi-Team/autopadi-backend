@@ -21,7 +21,8 @@ const vehicleSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-}, {
+}, 
+{
     timeseries: true
 });
 

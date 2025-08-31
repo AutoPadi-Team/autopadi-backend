@@ -17,7 +17,7 @@ exports.createServicePlan = async (req, res) => {
         }
 
         // check if package already exists for the mechanic
-        const existingPlan = await MechanicServicePlan.findOne({$and: [{ package: packageId }, { mechanic }]});
+        const existingPlan = await MechanicServicePlan.findOne({ $and: [{ package: packageId }, { mechanic }] });
         if (existingPlan) { 
             return res.status(400).json({
                 success: false,
