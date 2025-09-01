@@ -115,33 +115,6 @@ exports.disconnectMechanic = async (req, res) => {
 };
 
 // get all connected mechanics for a driver
-// exports.getConnectedMechanics = async (req, res) => {
-//   try {
-//     const driverId = req.user.id;
-//     const driver = await User.findById(driverId).populate("connected", "_id fullName email phoneNumber location isVerified role");
-
-//     if (!driver) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Driver not found" });
-//     }
-
-//     res
-//       .status(200)
-//       .json({
-//         success: true,
-//         message: "Connected mechanics fetched successfully",
-//         connectedMechanics: driver.connected,
-//         connectedCount: driver.connectedCount,
-//       });
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ success: false, message: `Server error: ${error.message}` });
-//   }
-// };
-
-// get all connected mechanics for a driver
 exports.getConnectedMechanics = async (req, res) => {
   try {
     const { driverId } = req.params;

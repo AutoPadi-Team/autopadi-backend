@@ -81,7 +81,7 @@ exports.createBusinessProfile = async (req, res) => {
       location,
       servicesOffered: servicesOffered.split(",").map((item) => item.trim()),
       picture: image.secure_url,
-      paymentMethod,
+      paymentMethod: paymentMethod.split(",").map((item) => item.trim()),
     });
     const savedBusinessProfile = await business.save();
 
@@ -116,7 +116,18 @@ exports.createBusinessProfile = async (req, res) => {
 exports.updateBusinessProfile = async (req, res) => {
   try {
     const { mechanicId } = req.params;
-    const { mechanicType, location, servicesOffered, paymentMethod } = req.body;
+    const {
+      mechanicType,
+      businessName,
+      businessPhoneNumber,
+      businessEmail,
+      yearsOfExperience,
+      brandServiced,
+      aboutBusiness,
+      location,
+      servicesOffered,
+      paymentMethod,
+    } = req.body;
 
     const businessProfile = await BusinessProfile.findOne({ mechanicId });
     if (!businessProfile) {
@@ -163,11 +174,17 @@ exports.updateBusinessProfile = async (req, res) => {
       { mechanicId },
       {
         mechanicType,
+        businessName,
+        businessPhoneNumber,
+        businessEmail,
+        yearsOfExperience,
+        brandServiced: brandServiced.split(",").map((item) => item.trim()),
+        aboutBusiness,
         certificate: documentCertificate.secure_url,
         location,
-        servicesOffered,
+        servicesOffered: servicesOffered.split(",").map((item) => item.trim()),
         picture: image.secure_url,
-        paymentMethod,
+        paymentMethod: paymentMethod.split(",").map((item) => item.trim()),
       },
       { new: true }
     );
@@ -222,5 +239,41 @@ exports.getAllBusinessProfiles = async (req, res) => {
     res
       .status(500)
       .json({ success: false, message: `Server error: ${error.message}` });
+  }
+};
+
+// verify business profile
+exports.verifyBusinessProfile = async (req, res) => {
+  try {
+    const { mechanicId } = req.params;
+
+    const businessProfile = await BusinessProfile.findOne({ mechanicId });
+    if (!businessProfile) {
+      return res.status(404).json({
+        success: false,
+        message: "business profile not found",
+      });
+    }
+
+    if (businessProfile.verified === true) {
+      return res.status(400).json({
+        success: false,
+        message: "business profile already verified",
+      });
+    };
+
+    const verifiedBusinessProfile = await BusinessProfile.findOneAndUpdate(
+      { mechanicId },
+      { verified: true },
+      { new: true }
+    );
+    res.status(200).json({
+      success: true,
+      message: "business profile verified successfully.",
+      verify: verifiedBusinessProfile.verified,
+    });
+    
+  } catch (error) {
+    res.status(500).json({ success: false, message: `Server error: ${error.message}` });
   }
 };

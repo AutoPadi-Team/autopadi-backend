@@ -1,10 +1,14 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/usersModel");
-const { generateToken, generateRefreshToken } = require("../middleware/authenticate");
+const {
+  generateToken,
+  generateRefreshToken,
+} = require("../middleware/authenticate");
 const { sendMail } = require("../mailer/sendMail");
 const verificationCode = require("../models/verificationCode");
 const userProfile = require("../models/userProfile");
+const InactiveUser = require("../models/inactiveUser");
 
 // generate a verification code
 const generateVerificationCode = () => {
@@ -207,7 +211,7 @@ exports.login = async (req, res) => {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
-      maxAge: 30 * 1000, // 120 days
+      maxAge: 120 * 24 * 60 * 60 * 1000, // 120 days
     });
 
     // save date of the refresh token expiry
@@ -278,7 +282,10 @@ exports.resendVerificationCode = async (req, res) => {
 
     // Find user
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ success: false, message: "User not found." });
+    if (!user)
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found." });
 
     // If code is valid, delete it
     await verificationCode.deleteOne({ email });
@@ -340,7 +347,7 @@ exports.resendVerificationCode = async (req, res) => {
 
       `,
     });
-    
+
     res.json({
       message: "Verification code resent successfully.",
       code: generatedCode,
@@ -451,7 +458,10 @@ exports.getAllUserDetails = async (req, res) => {
 exports.getUserDetails = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id).select("-password").populate("profileImage", "image").populate("businessDetails");
+    const user = await User.findById(id)
+      .select("-password")
+      .populate("profileImage", "image")
+      .populate("businessDetails");
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -469,10 +479,11 @@ exports.getUserDetails = async (req, res) => {
   }
 };
 
-// delete user date
+// delete user data
 exports.deleteUserDetails = async (req, res) => {
   try {
     const { id } = req.params;
+    const { reason } = req.body;
 
     const user = await User.findByIdAndDelete(id);
     if (!user) {
@@ -482,9 +493,56 @@ exports.deleteUserDetails = async (req, res) => {
       });
     }
 
+    // store inactive user data
+    const inactiveUser = new InactiveUser({
+      userId: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      role: user.role,
+      profileImage: user.profileImage,
+      businessDetails: user,
+      connectors: user.connectors,
+      connectorsCount: user.connectorsCount,
+      connected: user.connected,
+      connectedCount: user.connectedCount,
+      reason: reason.split(",").map((item) => item.trim()),
+    });
+    await inactiveUser.save();
+
     res.status(200).json({
       success: true,
       message: `${user.fullName} account deleted successfully 😊`,
+      inactiveUser,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: `Internal server error: ${error.message}`,
+    });
+  }
+};
+
+// get all deleted users account
+exports.getAllInactiveUsers = async (req, res) => {
+  try {
+    const users = await InactiveUser.find()
+      .populate("profileImage", "image")
+      .populate("businessDetails")
+      .populate("connectors", "fullName email phoneNumber location isVerified role")
+      .populate("connected", "fullName email phoneNumber location isVerified role")
+      .sort({ createdAt: -1 });
+    if (!users) {
+      return res.status(404).json({
+        success: false,
+        message: "no inactive users found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "inactive users retrieved successfully",
+      users,
     });
   } catch (error) {
     res.status(500).json({
@@ -498,15 +556,19 @@ exports.deleteUserDetails = async (req, res) => {
 exports.generateNewToken = async (req, res) => {
   try {
     const refreshToken = req.cookies.refreshToken;
-    
-    if(!refreshToken){
-      return res.status(401).json({ message: "No token provided." });
+
+    if (!refreshToken) {
+      return res
+        .status(401)
+        .json({ success: false, message: "No token provided." });
     }
 
     // verify refresh token
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET_KEY);
-    if(!decoded){
-      return res.status(403).json({ message: "Invalid token." });
+    if (!decoded) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Invalid token." });
     }
 
     // check if user exists
@@ -516,7 +578,7 @@ exports.generateNewToken = async (req, res) => {
     }
 
     // check if refresh token is close to expiry (3 days)
-    if(user.refreshTokenExpiredAt - Date.now() < 3 * 24 * 60 * 60 * 1000){
+    if (user.refreshTokenExpiredAt - Date.now() < 3 * 24 * 60 * 60 * 1000) {
       const newRefreshToken = generateRefreshToken(user);
       res.cookie("refreshToken", newRefreshToken, {
         httpOnly: true,
@@ -526,7 +588,9 @@ exports.generateNewToken = async (req, res) => {
       });
 
       // update refresh token expiry date
-      user.refreshTokenExpiredAt = new Date(Date.now() + 120 * 24 * 60 * 60 * 1000); // 120 days from now
+      user.refreshTokenExpiredAt = new Date(
+        Date.now() + 120 * 24 * 60 * 60 * 1000
+      ); // 120 days from now
       await user.save();
     }
 
@@ -536,8 +600,9 @@ exports.generateNewToken = async (req, res) => {
       message: "New token generated successfully",
       token: newToken,
     });
-    
   } catch (error) {
-    res.status(500).json({ message: `Internal server error: ${error.message}` });
+    res
+      .status(500)
+      .json({ message: `Internal server error: ${error.message}` });
   }
 };
