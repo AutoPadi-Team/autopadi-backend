@@ -126,7 +126,7 @@ exports.register = async (req, res) => {
       `,
     });
 
-    // send sms
+    // Send sms
     const smsInfo = await smsSender({
       phoneNumber: savedUser.phoneNumber,
       code: verifyCode.code,
@@ -153,16 +153,16 @@ exports.register = async (req, res) => {
 // Login user
 exports.login = async (req, res) => {
   try {
-    const { phoneNumber, password } = req.body;
+    const { phoneNumber } = req.body;
 
     // Find user
     const user = await User.findOne({ phoneNumber });
     if (!user) return res.status(400).json({ message: "Invalid credentials." });
 
     // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
-      return res.status(400).json({ message: "Invalid credentials." });
+    // const isMatch = await bcrypt.compare(password, user.password);
+    // if (!isMatch)
+    //   return res.status(400).json({ message: "Invalid credentials." });
 
     // save the verification code
     const generatedCode = generateVerificationCode();
@@ -211,7 +211,7 @@ exports.login = async (req, res) => {
       `,
     });
 
-    // send sms
+    // Send sms
     const smsInfo = await smsSender({
       name: user.fullName,
       phoneNumber: user.phoneNumber,
