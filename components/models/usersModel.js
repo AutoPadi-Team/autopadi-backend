@@ -18,6 +18,9 @@ const usersSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    fingerPrintId:{
+      type: String,
+    },
     referralCode: {
       type: String,
     },
