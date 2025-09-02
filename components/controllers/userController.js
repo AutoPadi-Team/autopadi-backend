@@ -9,6 +9,7 @@ const { sendMail } = require("../mailer/sendMail");
 const verificationCode = require("../models/verificationCode");
 const userProfile = require("../models/userProfile");
 const InactiveUser = require("../models/inactiveUser");
+const smsSender = require("../smsSender/smsSender");
 
 // generate a verification code
 const generateVerificationCode = () => {
@@ -80,6 +81,7 @@ exports.register = async (req, res) => {
     // save the verification code
     const generatedCode = generateVerificationCode();
     const verifyCode = new verificationCode({
+      name: savedUser.fullName,
       email: savedUser.email,
       code: generatedCode,
     });
@@ -124,6 +126,12 @@ exports.register = async (req, res) => {
       `,
     });
 
+    // send sms
+    const smsInfo = await smsSender({
+      phoneNumber: savedUser.phoneNumber,
+      code: verifyCode.code,
+    });
+
     res.status(201).json({
       message: "account created successfully",
       user: {
@@ -134,7 +142,9 @@ exports.register = async (req, res) => {
       profile: savedProfile.image,
       token,
       info: mailInfo.response,
+      smsInfo,
     });
+
   } catch (err) {
     res.status(500).json({ message: `Server error ${err.message}` });
   }
@@ -201,6 +211,13 @@ exports.login = async (req, res) => {
       `,
     });
 
+    // send sms
+    const smsInfo = await smsSender({
+      name: user.fullName,
+      phoneNumber: user.phoneNumber,
+      code: verifyCode.code,
+    });
+
     // Generate JWT
     const token = generateToken(user);
 
@@ -240,6 +257,7 @@ exports.login = async (req, res) => {
       },
       code: codeSaved.code,
       info: mailInfo.response,
+      smsInfo,
     });
   } catch (err) {
     res.status(500).json({ message: `Server error: ${err.message}` });
