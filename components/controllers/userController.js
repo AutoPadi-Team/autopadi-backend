@@ -128,6 +128,7 @@ exports.register = async (req, res) => {
 
     // Send sms
     const smsInfo = await smsSender({
+      name: savedUser.fullName,
       phoneNumber: savedUser.phoneNumber,
       code: verifyCode.code,
     });
