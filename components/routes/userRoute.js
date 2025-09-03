@@ -10,7 +10,8 @@ const {
   getAllUserDetails,
   deleteUserDetails,
   generateNewToken,
-  getAllInactiveUsers
+  getAllInactiveUsers,
+  addFingerPrintId,
 } = require("../controllers/userController");
 const { verifyToken } = require("../middleware/authenticate");
 const express = require("express");
@@ -28,5 +29,6 @@ router.get("/users-details", verifyToken, getAllUserDetails); // retrieve all us
 router.delete("/delete-user/:id", verifyToken, deleteUserDetails) // delete user account
 router.get("/inactive-users", verifyToken, getAllInactiveUsers); // get all inactive users
 router.get("/refresh-token", generateNewToken); // generate new access token using refresh token 
+router.patch("/add-fingerprint/:id", verifyToken, addFingerPrintId); // add fingerprint id to user
 
 module.exports = router;

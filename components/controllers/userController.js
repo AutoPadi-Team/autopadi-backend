@@ -429,6 +429,37 @@ exports.userLocation = async (req, res) => {
   }
 };
 
+// add fingerprint id
+exports.addFingerPrintId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { fingerPrintId } = req.body;
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "user not found",
+      });
+    }
+
+    const updatedUser = user.fingerPrintId = fingerPrintId;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "fingerprint added successfully",
+      user: {
+        fullName: user.fullName,
+        fingerPrintId: updatedUser,
+      },
+    });
+    
+  } catch (error) {
+    res.status(500).json({ success:false, message: `Internal server error: ${error.message}` });
+  }
+};
+
 // get user location by id
 exports.getUserLocation = async (req, res) => {
   try {
