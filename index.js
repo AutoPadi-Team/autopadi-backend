@@ -11,6 +11,7 @@ const adminServicePlanRoute = require('./components/routes/adminServicePlanRoute
 const mechanicServicePlanRoute = require('./components/routes/mechanicServicePlanRoute');
 const adminPremiumPlanRoute = require('./components/routes/adminPremiumPlanRoute');
 const brandServiceListRoute = require('./components/routes/brandServiceListRoute');
+const locationRoute = require('./components/routes/locationRoute');
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.use("/api", adminServicePlanRoute);
 app.use("/api", adminPremiumPlanRoute);
 app.use("/api", mechanicServicePlanRoute);
 app.use("/api", brandServiceListRoute);
+app.use("/api", locationRoute);
 
 // Default route
 app.get("/", (req, res) => {

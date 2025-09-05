@@ -56,6 +56,14 @@ const usersSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "BusinessProfile",
     },
+    availability: {
+      type: Boolean,
+      default: false,
+    },
+    availabilityTime: {
+      from: { type: Date },
+      to: { type: Date },
+    },
     connectors: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     connectorsCount: { type: Number, default: 0 },
     connected: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
