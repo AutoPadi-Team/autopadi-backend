@@ -12,7 +12,7 @@ const smsSender = async ({ name, phoneNumber, code }) => {
             msgid: "MGS1010101",
           },
         ],
-        message: `Dear ${name}, your verification code for AutoPadi is ${code}. Please ensure that you do not share this code with anyone. This code will expire in 10 minutes time.`,
+        message: `Dear ${name}, your verification code for AutoPadi is ${code}. This code will expire in 10 minutes time.`,
         smstype: "text",
       },
       {
