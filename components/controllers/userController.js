@@ -285,9 +285,18 @@ exports.verifyEmail = async (req, res) => {
       { new: true }
     );
 
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+
     res.json({
       message: "Email verified successfully.",
-      user: { id: user.isVerified },
+      user: {
+        id: user._id,
+        email: user.email,
+        isVerified: user.isVerified,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: `Server error: ${error.message}` });
@@ -367,10 +376,18 @@ exports.resendVerificationCode = async (req, res) => {
       `,
     });
 
+    // Send sms
+    const smsInfo = await smsSender({
+      name: user.fullName,
+      phoneNumber: user.phoneNumber,
+      code: verifyCode.code,
+    });
+
     res.json({
       message: "Verification code resent successfully.",
       code: generatedCode,
       mailInfo,
+      smsInfo,
     });
   } catch (error) {
     res.status(500).json({ message: `Server error: ${error.message}` });
