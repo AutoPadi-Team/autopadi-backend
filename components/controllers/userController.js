@@ -568,7 +568,6 @@ exports.deleteUserDetails = async (req, res) => {
       phoneNumber: user.phoneNumber,
       role: user.role,
       profileImage: user.profileImage,
-      businessDetails: user,
       connectors: user.connectors,
       connectorsCount: user.connectorsCount,
       connected: user.connected,
