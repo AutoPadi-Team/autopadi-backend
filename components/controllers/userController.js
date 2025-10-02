@@ -142,7 +142,7 @@ exports.register = async (req, res) => {
       },
       profile: savedProfile.image,
       token,
-      info: mailInfo.response,
+      // info: mailInfo.response,
       smsInfo,
     });
 
@@ -257,7 +257,7 @@ exports.login = async (req, res) => {
         createdAt: user.createdAt,
       },
       code: codeSaved.code,
-      info: mailInfo.response,
+      // info: mailInfo.response,
       smsInfo,
     });
   } catch (err) {
