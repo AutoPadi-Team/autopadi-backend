@@ -174,43 +174,43 @@ exports.login = async (req, res) => {
     const codeSaved = await verifyCode.save();
 
     // Send email
-    const mailInfo = await sendMail({
-      email: user.email,
-      subject: "Verification Code",
-      html: `
-          <div style=" background-color:#fff;">
-            <div style="background:#fff;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.07);padding:36px 28px;width:100%;font-family:Verdana,sans-serif;">
-                <div style="text-align:center;padding-bottom:20px; display: flex;">
-                  <img src="https://r4lcfqu82x.ufs.sh/f/dD4aXXWLaAu6z1dEu3aGer3Id1LO4gB6EXfs9qZvnWJtpojF" style="width: 50px; height: 50px; background-color: #2F63FF; border-radius: 50%; margin-top: -8px; margin-right: 16px;"  alt="">
-                  <h2 style="color:#2F63FF;margin:0;font-size:22px;font-weight:700;">AutoPadi Organisation</h2>
-                </div>
-                <div style="padding-bottom:10px;text-align:left;">
-                    <p style="color:#444;font-size:16px;margin:0;">
-                        Dear <span style="font-weight:600;">${user.fullName}</span>,
-                    </p>
-                </div>
-                <div style="text-align:center;padding-bottom:18px;">
-                    <p style="color:#444;font-size:16px;margin:0;">
-                        To confirm your account, please verify your email address using the code below.
-                    </p>
-                </div>
-                <div style="text-align:center;padding-bottom:22px;">
-                    <span style="display:inline-block;background:#e3f2fd;border:2px dashed #2F63FF;border-radius:8px;padding:18px 36px;font-size:30px;letter-spacing:10px;color:#2F63FF;font-weight:900;">
-                        ${generatedCode}
-                    </span>
-                </div>
-                <div style="text-align:center;padding-bottom:10px;">
-                    <p style="color: #474747;font-size:15px;margin:0;">
-                        This code will expire in <strong>10 minutes time</strong>
-                    </p>
-                    <p style="color:#888;font-size:13px;margin:0;">
-                        Didn’t log in ? You can safely ignore this email.
-                    </p>
-                </div>
-            </div>
-        </div>
-      `,
-    });
+    // const mailInfo = await sendMail({
+    //   email: user.email,
+    //   subject: "Verification Code",
+    //   html: `
+    //       <div style=" background-color:#fff;">
+    //         <div style="background:#fff;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.07);padding:36px 28px;width:100%;font-family:Verdana,sans-serif;">
+    //             <div style="text-align:center;padding-bottom:20px; display: flex;">
+    //               <img src="https://r4lcfqu82x.ufs.sh/f/dD4aXXWLaAu6z1dEu3aGer3Id1LO4gB6EXfs9qZvnWJtpojF" style="width: 50px; height: 50px; background-color: #2F63FF; border-radius: 50%; margin-top: -8px; margin-right: 16px;"  alt="">
+    //               <h2 style="color:#2F63FF;margin:0;font-size:22px;font-weight:700;">AutoPadi Organisation</h2>
+    //             </div>
+    //             <div style="padding-bottom:10px;text-align:left;">
+    //                 <p style="color:#444;font-size:16px;margin:0;">
+    //                     Dear <span style="font-weight:600;">${user.fullName}</span>,
+    //                 </p>
+    //             </div>
+    //             <div style="text-align:center;padding-bottom:18px;">
+    //                 <p style="color:#444;font-size:16px;margin:0;">
+    //                     To confirm your account, please verify your email address using the code below.
+    //                 </p>
+    //             </div>
+    //             <div style="text-align:center;padding-bottom:22px;">
+    //                 <span style="display:inline-block;background:#e3f2fd;border:2px dashed #2F63FF;border-radius:8px;padding:18px 36px;font-size:30px;letter-spacing:10px;color:#2F63FF;font-weight:900;">
+    //                     ${generatedCode}
+    //                 </span>
+    //             </div>
+    //             <div style="text-align:center;padding-bottom:10px;">
+    //                 <p style="color: #474747;font-size:15px;margin:0;">
+    //                     This code will expire in <strong>10 minutes time</strong>
+    //                 </p>
+    //                 <p style="color:#888;font-size:13px;margin:0;">
+    //                     Didn’t log in ? You can safely ignore this email.
+    //                 </p>
+    //             </div>
+    //         </div>
+    //     </div>
+    //   `,
+    // });
 
     // Send sms
     const smsInfo = await smsSender({
@@ -257,7 +257,7 @@ exports.login = async (req, res) => {
         createdAt: user.createdAt,
       },
       code: codeSaved.code,
-      info: mailInfo.response,
+      // info: mailInfo.response,
       smsInfo,
     });
   } catch (err) {
