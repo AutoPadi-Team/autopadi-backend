@@ -123,7 +123,7 @@ exports.getConnectedMechanics = async (req, res) => {
     if (!driver) {
       return res
         .status(404)
-        .json({ success: false, message: "Driver not found" });
+        .json({ success: false, message: "Mechanic not found" });
     };
 
     res
