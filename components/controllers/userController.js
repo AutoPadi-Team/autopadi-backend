@@ -281,7 +281,7 @@ exports.verifyEmail = async (req, res) => {
     await verificationCode.deleteOne({ email, code });
     // Update user verification status
     const user = await User.findOneAndUpdate(
-      { email },
+      { email, rating: 5 },
       { isVerified: true },
       { new: true }
     );
@@ -297,6 +297,7 @@ exports.verifyEmail = async (req, res) => {
         id: user._id,
         email: user.email,
         isVerified: user.isVerified,
+        rating: user.rating,
       },
     });
   } catch (error) {

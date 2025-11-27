@@ -5,7 +5,8 @@ const cloudinary = require("../middleware/cloudinary");
 // add a vehicle profile
 exports.addVehicle = async (req, res) => {
   try {
-    const { driverId, carBrand, carModel, carYear } = req.body;
+    const { driverId, carBrand, carModel, carYear, carLicensePlateNumber, carColor } =
+      req.body;
 
     // check if the image is empty
     let image;
@@ -27,6 +28,8 @@ exports.addVehicle = async (req, res) => {
       carBrand,
       carModel,
       carYear,
+      carLicensePlateNumber,
+      carColor,
     });
     const savedVehicle = await userVehicle.save();
 
@@ -99,7 +102,7 @@ exports.getUserVehicle = async (req, res) => {
 exports.updateUserVehicle = async (req, res) => {
   try {
     const { id } = req.params;
-    const { carBrand, carModel, carYear } = req.body;
+    const { carBrand, carModel, carYear, carLicensePlateNumber, carColor } = req.body;
 
     // check if the image is empty
     let image;
@@ -119,6 +122,9 @@ exports.updateUserVehicle = async (req, res) => {
         carBrand,
         carModel,
         carYear,
+        carLicensePlateNumber,
+        carColor,
+        image,
       },
       { new: true }
     );

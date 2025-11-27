@@ -82,6 +82,7 @@ exports.createBusinessProfile = async (req, res) => {
       servicesOffered: servicesOffered.split(",").map((item) => item.trim()),
       picture: image.secure_url,
       paymentMethod: paymentMethod.split(",").map((item) => item.trim()),
+      rating: 1,
     });
     const savedBusinessProfile = await business.save();
 
@@ -264,13 +265,17 @@ exports.verifyBusinessProfile = async (req, res) => {
 
     const verifiedBusinessProfile = await BusinessProfile.findOneAndUpdate(
       { mechanicId },
-      { verified: true },
+      { verified: true, rating: 3 },
       { new: true }
     );
     res.status(200).json({
       success: true,
       message: "business profile verified successfully.",
-      verify: verifiedBusinessProfile.verified,
+      businessProfile: {
+        id: verifiedBusinessProfile._id,
+        verified: verifiedBusinessProfile.verified,
+        rating: verifiedBusinessProfile.rating,
+      }
     });
     
   } catch (error) {

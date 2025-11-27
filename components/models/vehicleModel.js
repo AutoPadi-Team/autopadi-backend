@@ -21,6 +21,14 @@ const vehicleSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    carLicensePlateNumber: {
+        type: String,
+        required: true,
+    },
+    carColor: {
+        type: String,
+        default: "none",
+    },
 }, 
 {
     timeseries: true
