@@ -257,7 +257,6 @@ exports.login = async (req, res) => {
         connectedCount: user.connectedCount,
         createdAt: user.createdAt,
       },
-      code: codeSaved.code,
       // info: mailInfo.response,
       smsInfo,
     });
