@@ -118,7 +118,18 @@ exports.disconnectMechanic = async (req, res) => {
 exports.getConnectedMechanics = async (req, res) => {
   try {
     const { driverId } = req.params;
-    const driver = await User.findById(driverId).populate("connected", "_id fullName email phoneNumber location isVerified role");
+    const driver = await User.findById(driverId).populate({
+      path: "connected",
+      select: "_id fullName role",
+      populate: [
+        {
+          path: "businessDetails",
+          select:
+            "_id picture businessPhoneNumber businessName yearsOfExperience aboutBusiness rating location",
+        },
+        { path: "profileImage", select: "-_id image" },
+      ],
+    });
 
     if (!driver) {
       return res
@@ -145,7 +156,12 @@ exports.getConnectedMechanics = async (req, res) => {
 exports.getConnectedDrivers = async (req, res) => {
   try {
     const { mechanicId } = req.params;
-    const mechanic = await User.findById(mechanicId).populate("connectors", "_id fullName email phoneNumber location isVerified role");
+    const mechanic = await User.findById(mechanicId).populate({
+      path: "connectors",
+      select:
+        "_id fullName email phoneNumber location isVerified role",
+      populate: { path: "profileImage", select: "-_id image" },
+    });
 
     if (!mechanic) {
       return res
