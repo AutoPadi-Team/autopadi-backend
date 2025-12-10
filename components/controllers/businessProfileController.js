@@ -228,7 +228,7 @@ exports.getBusinessProfile = async (req, res) => {
 // get all business profiles
 exports.getAllBusinessProfiles = async (req, res) => {
   try {
-    const businessProfiles = await BusinessProfile.find().sort({
+    const businessProfiles = await BusinessProfile.find({ verified: true }).sort({
       createdAt: -1,
     });
     res.status(200).json({

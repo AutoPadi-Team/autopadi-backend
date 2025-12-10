@@ -12,6 +12,7 @@ const businessProfileSchema = mongoose.Schema({
     },
     businessPhoneNumber: {
         type: String,
+        required: true,
     },
     businessEmail: {
         type: String,
