@@ -225,10 +225,31 @@ exports.getBusinessProfile = async (req, res) => {
   }
 };
 
+// get all business profiles whose verified is true
+exports.getAllBusinessProfilesVerified = async (req, res) => {
+  try {
+    const businessProfiles = await BusinessProfile.find({
+      verified: true,
+    }).sort({
+      rating: -1,
+      createdAt: -1,
+    });
+    res.status(200).json({
+      success: true,
+      message: "business profiles fetched successfully.",
+      businessProfiles,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: `Server error: ${error.message}` });
+  }
+};
+
 // get all business profiles
 exports.getAllBusinessProfiles = async (req, res) => {
   try {
-    const businessProfiles = await BusinessProfile.find({ verified: true }).sort({
+    const businessProfiles = await BusinessProfile.find().sort({
       createdAt: -1,
     });
     res.status(200).json({

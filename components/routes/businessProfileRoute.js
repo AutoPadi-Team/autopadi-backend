@@ -1,6 +1,13 @@
 const router = require("express").Router();
 const upload = require("../middleware/multer");
-const { createBusinessProfile, updateBusinessProfile, getBusinessProfile, getAllBusinessProfiles, verifyBusinessProfile } = require("../controllers/businessProfileController");
+const {
+  createBusinessProfile,
+  updateBusinessProfile,
+  getBusinessProfile,
+  getAllBusinessProfiles,
+  getAllBusinessProfilesVerified,
+  verifyBusinessProfile,
+} = require("../controllers/businessProfileController");
 const { verifyToken } = require("../middleware/authenticate");
 
 
@@ -22,7 +29,8 @@ router.put(
   ]),
 updateBusinessProfile); // update business profile
 router.get("/get-business-profile/:mechanicId", verifyToken, getBusinessProfile) // get business profile
-router.get("/get-business-profile", verifyToken, getAllBusinessProfiles); // get all business profile
+router.get("/get-business-profile", verifyToken, getAllBusinessProfilesVerified); // get all verified business profile
+router.get("/get-all-business-profile", verifyToken, getAllBusinessProfiles); // get all business profile
 router.patch("/verify-business-profile/:mechanicId", verifyToken, verifyBusinessProfile); // verify business profile
 
 module.exports = router;
