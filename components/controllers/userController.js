@@ -240,7 +240,7 @@ exports.login = async (req, res) => {
     await user.save();
 
     res.json({
-      success: false,
+      success: true,
       message: "logged in successfully",
       token,
       user: {
