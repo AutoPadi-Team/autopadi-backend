@@ -38,7 +38,7 @@ app.use("/api", locationRoute);
 
 // Default route
 app.get("/", (req, res) => {
-  res.json({ message: "AutoPadi server running successfully."});
+  res.json({ message: "AutoPadi server running successfully.."});
 });
 
 app.listen(port, () => {
