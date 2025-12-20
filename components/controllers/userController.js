@@ -197,7 +197,7 @@ exports.login = async (req, res) => {
     //             </div>
     //             <div style="text-align:center;padding-bottom:22px;">
     //                 <span style="display:inline-block;background:#e3f2fd;border:2px dashed #2F63FF;border-radius:8px;padding:18px 36px;font-size:30px;letter-spacing:10px;color:#2F63FF;font-weight:900;">
-    //                     ${generatedCode}
+    //                     ${codeSaved.code}
     //                 </span>
     //             </div>
     //             <div style="text-align:center;padding-bottom:10px;">
@@ -217,7 +217,7 @@ exports.login = async (req, res) => {
     const smsInfo = await smsSender({
       name: user.fullName,
       phoneNumber: user.phoneNumber,
-      code: verifyCode.code,
+      code: codeSaved.code,
     });
 
     // Generate JWT
