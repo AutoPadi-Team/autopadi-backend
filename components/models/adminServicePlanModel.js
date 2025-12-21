@@ -17,6 +17,14 @@ const adminServicePlanSchema = new mongoose.Schema({
         type: String,
         required: true,
     }],
+    bonuses: [{
+        type: String,
+        default: ["none"]
+    }],
+    terms: [{
+        type: String,
+        required: true,
+    }],
 }, {
     timestamps: true,
 });

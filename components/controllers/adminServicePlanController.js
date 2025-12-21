@@ -2,13 +2,13 @@ const AdminServicePlan = require("../models/adminServicePlanModel");
 
 exports.createServicePlan = async (req, res) => {
   try {
-    const { title, lowPrice, highPrice, benefits } = req.body;
+    const { title, lowPrice, highPrice, benefits, bonuses, terms } = req.body;
 
-    if (!title || !lowPrice || !highPrice || !benefits) {
+    if (!title || !lowPrice || !highPrice || !benefits || !terms) {
       return res.status(400).json({
         success: false,
         message:
-          "All fields are required: title, lowPrice, highPrice, benefits",
+          "All fields are required: title, lowPrice, highPrice, benefits, terms",
       });
     }
 
@@ -28,10 +28,9 @@ exports.createServicePlan = async (req, res) => {
       lowPrice,
       highPrice,
       benefits: benefits.split(",").map((benefit) => benefit.trim()),
+      bonuses: bonuses.split(",").map((bonus) => bonus.trim()),
+      terms: terms.split(",").map((term) => term.trim()),
     });
-    console.log(
-      `New Plan: ${benefits.split(",").map((benefit) => benefit.trim())}`
-    );
 
     const savedPlan = await newPlan.save();
     res.status(201).json({
@@ -50,7 +49,7 @@ exports.createServicePlan = async (req, res) => {
 exports.updateServicePlan = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, lowPrice, highPrice, benefits } = req.body;
+    const { title, lowPrice, highPrice, benefits, bonuses, terms } = req.body;
     const updatedPlan = await AdminServicePlan.findByIdAndUpdate(
       id,
       {
@@ -58,6 +57,8 @@ exports.updateServicePlan = async (req, res) => {
         lowPrice,
         highPrice,
         benefits: benefits.split(",").map((benefit) => benefit.trim()),
+        bonuses: bonuses.split(",").map((bonus) => bonus.trim()),
+        terms: terms.split(",").map((term) => term.trim()),
       },
       { new: true }
     );
@@ -111,7 +112,7 @@ exports.deleteServicePlan = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Service plan deleted successfully",
+      message: `${deletedPlan.title} deleted successfully`,
     });
   } catch (error) {
     res.status(500).json({

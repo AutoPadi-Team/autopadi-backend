@@ -85,7 +85,7 @@ exports.updateServicePlan = async (req, res) => {
 // get all service plans
 exports.getAllServicePlans = async (req, res) => {
     try {
-        const plans = await MechanicServicePlan.find().populate("package", "title lowPrice highPrice benefits").sort({ createdAt: -1 });
+        const plans = await MechanicServicePlan.find().populate("package", "title lowPrice highPrice benefits bonuses terms").sort({ createdAt: -1 });
 
         res.status(200).json({
             success: true,
@@ -104,7 +104,7 @@ exports.getAllServicePlans = async (req, res) => {
 exports.getMechanicServicePlans = async (req, res) => {
     try {
         const { mechanicId } = req.params;
-        const plans = await MechanicServicePlan.find({ mechanic: mechanicId }).populate("package", "title lowPrice highPrice benefits");
+        const plans = await MechanicServicePlan.find({ mechanic: mechanicId }).populate("package", "title lowPrice highPrice benefits bonuses terms");
         if (!plans) {
             return res.status(404).json({
                 success: false,
