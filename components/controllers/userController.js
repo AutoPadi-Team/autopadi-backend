@@ -214,11 +214,11 @@ exports.login = async (req, res) => {
     // });
 
     // Send sms
-    const smsInfo = await smsSender({
-      name: user.fullName,
-      phoneNumber: user.phoneNumber,
-      code: codeSaved.code,
-    });
+    // const smsInfo = await smsSender({
+    //   name: user.fullName,
+    //   phoneNumber: user.phoneNumber,
+    //   code: codeSaved.code,
+    // });
 
     // Generate JWT
     const token = generateToken(user);
@@ -258,7 +258,7 @@ exports.login = async (req, res) => {
         createdAt: user.createdAt,
       },
       // info: mailInfo.response,
-      smsInfo,
+      // smsInfo,
     });
   } catch (err) {
     res.status(500).json({ message: `Server error: ${err.message}` });
