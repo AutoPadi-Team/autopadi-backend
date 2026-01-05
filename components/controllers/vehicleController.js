@@ -51,7 +51,11 @@ exports.addVehicle = async (req, res) => {
 // get all vehicles
 exports.getAllUserVehicle = async (req, res) => {
   try {
-    const vehicle = await Vehicle.find().sort({ createdAt: -1 });
+    const vehicle = await Vehicle.find().sort({ createdAt: -1 }).populate({
+      path: "driverId",
+      select: "fullName email phoneNumber",
+      populate: { path: "profileImage", select: "-_id image" },
+    });
     if (!vehicle) {
       return res.status(404).json({
         success: false,

@@ -14,6 +14,14 @@ exports.connectMechanic = async (req, res) => {
         .json({ success: false, message: "Mechanic not found" });
     }
 
+    // check if mechanic has reached 9 max connectors and is not premium member
+    if(mechanic.connectorsCount === 9 && !mechanic.premiumMember) {
+      return res.status(403).json({
+        success: false,
+        message: `${mechanic.fullName} has reached the maximum number of (9) driver connections.`,
+      });
+    }
+
     // check if driver already connected to mechanic
     const driver = await User.findById(driverId);
     if (driver.connected.includes(mechanicId)) {
@@ -158,23 +166,18 @@ exports.getConnectedDrivers = async (req, res) => {
     const { mechanicId } = req.params;
     const mechanic = await User.findById(mechanicId).populate({
       path: "connectors",
-      select:
-        "_id fullName email phoneNumber location isVerified role",
+      select: "_id fullName email phoneNumber location isVerified role",
       populate: { path: "profileImage", select: "-_id image" },
     });
 
     if (!mechanic) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Driver not found" });
+      return res.status(404).json({ success: false, message: "Driver not found" });
     }
 
-    res
-      .status(200)
-      .json({
+    res.status(200).json({
         success: true,
-        message: "Connected mechanics fetched successfully",
-        connectedDivers: mechanic.connectors,
+        message: "Connected drivers fetched successfully",
+        connectedDrivers: mechanic.connectors,
         connectedCount: mechanic.connectorsCount,
       });
   } catch (error) {

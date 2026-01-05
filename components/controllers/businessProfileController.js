@@ -264,7 +264,7 @@ exports.getAllBusinessProfiles = async (req, res) => {
   }
 };
 
-// verify business profile
+// verify business profile(admin)
 exports.verifyBusinessProfile = async (req, res) => {
   try {
     const { mechanicId } = req.params;

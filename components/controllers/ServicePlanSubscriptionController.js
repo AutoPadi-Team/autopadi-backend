@@ -8,11 +8,12 @@ exports.subscribeToServicePlan = async (req, res) => {
     const {
       driverId,
       mechanicId,
+      packageId,
       subscriptionType,
       subscriptionAmount
     } = req.body;
 
-    if (!driverId || !mechanicId || !subscriptionType || !subscriptionAmount) {
+    if (!driverId || !mechanicId || !subscriptionType || !subscriptionAmount || !packageId) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -35,6 +36,7 @@ exports.subscribeToServicePlan = async (req, res) => {
     const newSubscription = new ServicePlanSubscription({
       driverId,
       mechanicId,
+      packageId,
       subscriptionType,
       subscriptionAmount,
       subscriptionStatus: true,
@@ -69,13 +71,15 @@ exports.getUserSubscriptions = async (req, res) => {
   try {
     const { driverId, mechanicId } = req.params;
     const subscriptions = await ServicePlanSubscription.find({
-      $and: [{ driverId }, { mechanicId }],
+      $and: [{ driverId }, { mechanicId }, { subscriptionStatus: true }],
     }).populate("driverId", "fullName email")
-      .populate("mechanicId", "fullName email");
+      .populate("mechanicId", "fullName email")
+      .populate("packageId", "benefits bonuses terms");
 
-    res
-      .status(200)
-      .json({
+      if (subscriptions.length === 0) {
+        return res.status(404).json({ message: "No active subscriptions found" });
+      }
+    res.status(200).json({
         message: "Service plan subscription retrieved successfully",
         subscriptions,
       });
@@ -151,7 +155,8 @@ exports.getAllSubscriptions = async (req, res) => {
     try {
         const subscriptions = await ServicePlanSubscription.find()
             .populate("driverId", "fullName email")
-            .populate("mechanicId", "fullName email");
+            .populate("mechanicId", "fullName email")
+            .populate("packageId", "benefits bonuses terms");
         res.status(200).json({ message: "Service plan subscription retrieved successfully", subscriptions });
     }
     catch (err) {
