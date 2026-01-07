@@ -6,6 +6,7 @@ const smsInfo = require("../smsSender/smsInfo");
 const ServiceSubscriptionReminders = async () => {
   try {
     const now = new Date();
+    const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days ahead
     const threeDaysFromNow = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 days ahead
     const oneDayFromNow = new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000); // 1 day ahead
 
@@ -30,10 +31,11 @@ const ServiceSubscriptionReminders = async () => {
     }
     
 
-    // Find subscriptions that are expiring in 3 days or 1 day
+    // Find subscriptions that are expiring in 7 days, 3 days or 1 day
     const subscriptions = await ServicePlanSubscriptionModel.find({
       subscriptionStatus: true,
       $or: [ 
+        { endDate: getFormattedDate(sevenDaysFromNow) },
         { endDate: getFormattedDate(threeDaysFromNow) },
         { endDate: getFormattedDate(oneDayFromNow) },
       ],
@@ -46,6 +48,13 @@ const ServiceSubscriptionReminders = async () => {
 
       const firstName = driver.fullName.split(" ")[0]; // Get first name for personalization
       
+      // Send 7-day reminder
+      if (daysLeft === 7) {
+        await smsInfo({
+          phoneNumber: driver.phoneNumber,
+          msg: `Dear ${firstName}, your subscription to ${mechanic.fullName}'s ${subscription.subscriptionType} expires in ${daysLeft} days (${subscription.endDate.toDateString()}). Renew now with AutoPadi to avoid service cuts.`,
+        });
+      }
       // Send 3-day reminder
       if (daysLeft === 3) {
         await smsInfo({

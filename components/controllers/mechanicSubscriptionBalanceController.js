@@ -1,0 +1,20 @@
+const MechanicSubscriptionBalance = require("../models/mechanicSubscriptionBalanceModel");
+
+// Get mechanic subscription balance by mechanic ID
+exports.getMechanicSubscriptionBalance = async (req, res) => {
+  try {
+    const { mechanicId } = req.params;
+    const balanceRecord = await MechanicSubscriptionBalance.findOne({
+      mechanicId,
+    });
+    if (!balanceRecord) {
+      return res.status(404).json({ message: "Balance record not found." });
+    }
+    res.status(200).json({
+      message: "Mechanic subscription balance retrieved successfully",
+      balance: balanceRecord.balanceAmount,
+    });
+  } catch (err) {
+    res.status(500).json({ message: `Server error ${err.message}` });
+  }
+};

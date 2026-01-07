@@ -1,4 +1,5 @@
 const ServicePlanSubscription = require("../models/ServicePlanSubscriptionModel");
+const ServicePlanPayment = require("../models/servicePlanPaymentModel");
 const User = require("../models/usersModel");
 const smsInfo = require("../smsSender/smsInfo");
 
@@ -45,6 +46,15 @@ exports.subscribeToServicePlan = async (req, res) => {
     });
     const savedSubscription = await newSubscription.save();
 
+    // Create payment record
+    const servicePlanPayment = new ServicePlanPayment({
+      subscriptionId: savedSubscription._id,
+      driverId: savedSubscription.driverId,
+      mechanicId: savedSubscription.mechanicId,
+      subscriptionAmount: savedSubscription.subscriptionAmount,
+    });
+    const savedPayment = await servicePlanPayment.save();
+
     // Send SMS notifications to driver and mechanic
     const driver = await User.findById(savedSubscription.driverId);
     const mechanic = await User.findById(savedSubscription.mechanicId);
@@ -60,10 +70,67 @@ exports.subscribeToServicePlan = async (req, res) => {
     res.status(201).json({
       message: "Service plan subscription created successfully",
       subscription: savedSubscription,
+      payment: savedPayment.subscriptionAmount,
     });
   } catch (err) {
     res.status(500).json({ message: `Server error: ${err.message}` });
   }
+};
+
+
+// Renew a subscription
+exports.renewSubscription = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const subscription = await ServicePlanSubscription.findById(id);
+      if (!subscription) {
+        return res.status(404).json({ message: "Subscription not found" });
+      }
+      if (subscription.subscriptionStatus === false) {
+        return res.status(404).json({ message: "Cannot renew a cancelled subscription" });
+      }
+
+      const daysLeft = Math.ceil((subscription.endDate - new Date()) / (1000 * 60 * 60 * 24));
+      console.log(`Days left: ${daysLeft}`);
+      
+      if (daysLeft <= 7) {
+        return res.status(400).json({ message: `Subscription is still active with ${daysLeft} day(s) left` });
+      }
+
+      const newEndDate = new Date(
+        subscription.endDate.getTime() + 30 * 24 * 60 * 60 * 1000
+      ); // Extend by 30 days
+      subscription.endDate = newEndDate;
+      subscription.subscriptionStatus = true;
+      await subscription.save();
+
+      // Create payment record for renewal
+      const servicePlanPayment = new ServicePlanPayment({
+        subscriptionId: subscription._id,
+        driverId: subscription.driverId,
+        mechanicId: subscription.mechanicId,
+        subscriptionAmount: subscription.subscriptionAmount,
+      });
+      await servicePlanPayment.save();
+
+      // Send SMS notification to driver
+      const driver = await User.findById(subscription.driverId);
+      const mechanic = await User.findById(subscription.mechanicId);
+      await smsInfo({
+        phoneNumber: driver.phoneNumber,
+        msg: `Dear ${driver.fullName}, your subscription to ${mechanic.fullName}'s ${subscription.subscriptionType} has been renewed with AutoPadi.`,
+      });
+
+      res.status(200).json({
+        message: "Subscription renewed successfully",
+        subscription,
+        payment: servicePlanPayment.subscriptionAmount,
+      });
+    } catch (err) {
+        res.status(500).json({ 
+          message: `Server error: ${err.message}` 
+        });
+    }
 };
 
 // Get subscriptions for a user
@@ -113,40 +180,6 @@ exports.cancelSubscription = async (req, res) => {
         res.status(200).json({ message: "Subscription cancelled successfully", subscription: subscription.subscriptionStatus });
     } catch (err) {
         res.status(500).json({ message: `Server error: ${err.message}` });
-    }
-};
-
-// Renew a subscription
-exports.renewSubscription = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const subscription = await ServicePlanSubscription.findById(id);
-      if (!subscription) {
-        return res.status(404).json({ message: "Subscription not found" });
-      }
-      const newEndDate = new Date(
-        subscription.endDate.getTime() + 30 * 24 * 60 * 60 * 1000
-      ); // Extend by 30 days
-      subscription.endDate = newEndDate;
-      subscription.subscriptionStatus = true;
-      await subscription.save();
-
-      // Send SMS notification to driver
-      const driver = await User.findById(subscription.driverId);
-      const mechanic = await User.findById(subscription.mechanicId);
-      await smsInfo({
-        phoneNumber: driver.phoneNumber,
-        msg: `Dear ${driver.fullName}, your subscription to ${mechanic.fullName}'s ${subscription.subscriptionType} has been renewed with AutoPadi.`,
-      });
-
-      res.status(200).json({
-        message: "Subscription renewed successfully",
-        subscription,
-      });
-    } catch (err) {
-        res.status(500).json({ 
-          message: `Server error: ${err.message}` 
-        });
     }
 };
 

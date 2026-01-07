@@ -7,8 +7,9 @@ exports.getAllMechanicsLocations = async (req, res) => {
           role: "mechanic",
           availability: true,
         })
-          .select("location fullName phoneNumber profileImage businessDetails")
-          .populate("businessDetails", "mechanicType businessName");
+          .select("location availability availabilityTime fullName phoneNumber profileImage businessDetails")
+          .populate("businessDetails", "mechanicType businessName")
+          .populate("profileImage", "image");
 
         res.status(200).json({
             success: true,

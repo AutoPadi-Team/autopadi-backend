@@ -14,6 +14,7 @@ const brandServiceListRoute = require("./components/routes/brandServiceListRoute
 const locationRoute = require("./components/routes/locationRoute");
 const servicePlanSubscriptionRoute = require("./components/routes/ServicePlanSubscriptionRoute");
 const ServiceSubscriptionReminders = require("./components/reminders/ServiceSubscriptionReminders");
+const servicePlanPaymentRoute = require("./components/routes/servicePlanPaymentRoute");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use("/api", mechanicServicePlanRoute);
 app.use("/api", brandServiceListRoute);
 app.use("/api", locationRoute);
 app.use("/api", servicePlanSubscriptionRoute);
+app.use("/api", servicePlanPaymentRoute);
 
 // Redirect HTTP to HTTPS
 // app.use((req, res, next) => {

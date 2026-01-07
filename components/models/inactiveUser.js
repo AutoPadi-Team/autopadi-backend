@@ -29,6 +29,10 @@ const inactiveUserSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Profile",
     },
+    businessDetails: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "BusinessProfile",
+    },
     connectors: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     connectorsCount: { type: Number, default: 0 },
     connected: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],

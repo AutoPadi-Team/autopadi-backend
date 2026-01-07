@@ -593,10 +593,10 @@ exports.deleteUserDetails = async (req, res) => {
 exports.getAllInactiveUsers = async (req, res) => {
   try {
     const users = await InactiveUser.find()
-      .populate("profileImage", "image")
-      .populate("businessDetails")
-      .populate("connectors", "fullName email phoneNumber location isVerified role")
-      .populate("connected", "fullName email phoneNumber location isVerified role")
+      .populate("profileImage", "image", { strictPopulate: false })
+      .populate("businessDetails", null, { strictPopulate: false })
+      .populate("connectors", "fullName email phoneNumber location isVerified role", { strictPopulate: false })
+      .populate("connected", "fullName email phoneNumber location isVerified role", { strictPopulate: false })
       .sort({ createdAt: -1 });
     if (!users) {
       return res.status(404).json({
