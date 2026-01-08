@@ -9,6 +9,7 @@ const { sendMail } = require("../mailer/sendMail");
 const verificationCode = require("../models/verificationCode");
 const userProfile = require("../models/userProfile");
 const InactiveUser = require("../models/inactiveUser");
+const MechanicServiceSubscriptionBalance = require("../models/mechanicSubscriptionBalanceModel");
 const smsSender = require("../smsSender/smsSender");
 
 // generate a verification code
@@ -289,7 +290,6 @@ exports.verifyEmail = async (req, res) => {
       return res.status(404).json({ message: "User not found." });
     }
 
-
     res.json({
       message: "Email verified successfully.",
       user: {
@@ -407,12 +407,30 @@ exports.userRole = async (req, res) => {
       });
     }
 
+    let mechanicAccount;
+    //create a payment account for mechanic
+    if (user.role === "mechanic") {
+      const existingAccount = await MechanicServiceSubscriptionBalance.findOne({ mechanicId: user._id });
+      if (existingAccount) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "User role is a mechanic and account balance already exists  " 
+        });
+      }
+      const mechanicServiceSubscriptionBalance = new MechanicServiceSubscriptionBalance({
+        mechanicId: user._id,
+        balanceAmount: 0,
+      });
+      mechanicAccount = await mechanicServiceSubscriptionBalance.save();
+    }
+
     res.status(200).json({
       success: true,
       message: "user role selected successfully",
       user: {
         fullName: user.fullName,
         role: user.role,
+        mechanicAccount: mechanicAccount || null,
       },
     });
   } catch (error) {

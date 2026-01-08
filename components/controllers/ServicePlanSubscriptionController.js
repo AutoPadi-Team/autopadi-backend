@@ -1,7 +1,9 @@
 const ServicePlanSubscription = require("../models/ServicePlanSubscriptionModel");
 const ServicePlanPayment = require("../models/servicePlanPaymentModel");
+const MechanicSubscriptionBalance = require("../models/mechanicSubscriptionBalanceModel");
 const User = require("../models/usersModel");
 const smsInfo = require("../smsSender/smsInfo");
+const axios = require("axios");
 
 // Subscribe to a service plan
 exports.subscribeToServicePlan = async (req, res) => {
@@ -27,50 +29,60 @@ exports.subscribeToServicePlan = async (req, res) => {
 
     if (existingSubscription) {
       return res.status(400).json({
-        message:
-          `You already have an active subscription for ${existingSubscription.subscriptionType}.`,
+        message: `You already have an active subscription for ${existingSubscription.subscriptionType}.`,
       });
     }
 
-    const start = new Date(Date.now());
-    const stopDate = new Date(Date.now() + 30*24*60*60*1000); // 30 days from now
-    const newSubscription = new ServicePlanSubscription({
-      driverId,
-      mechanicId,
-      packageId,
-      subscriptionType,
-      subscriptionAmount,
-      subscriptionStatus: true,
-      startDate: start,
-      endDate: stopDate,
-    });
-    const savedSubscription = await newSubscription.save();
+    // check for existing driver
+    const driver = await User.findById(driverId);
+    if (!driver) {
+      return res.status(404).json({ message: "Driver not found" });
+    }
 
-    // Create payment record
-    const servicePlanPayment = new ServicePlanPayment({
-      subscriptionId: savedSubscription._id,
-      driverId: savedSubscription.driverId,
-      mechanicId: savedSubscription.mechanicId,
-      subscriptionAmount: savedSubscription.subscriptionAmount,
-    });
-    const savedPayment = await servicePlanPayment.save();
-
-    // Send SMS notifications to driver and mechanic
-    const driver = await User.findById(savedSubscription.driverId);
-    const mechanic = await User.findById(savedSubscription.mechanicId);
-    await smsInfo({
-      phoneNumber: driver.phoneNumber,
-      msg: `Dear ${driver.fullName}, you've successfully subscribed to ${mechanic.fullName}'s ${savedSubscription.subscriptionType} with AutoPadi.\nStart Date: ${savedSubscription.startDate.toDateString()}\nEnd Date: ${savedSubscription.endDate.toDateString()}`,
-    });
-    await smsInfo({
-      phoneNumber: mechanic.phoneNumber,
-      msg: `Dear ${mechanic.fullName}, your customer ${driver.fullName} has subscribed to your ${savedSubscription.subscriptionType} with AutoPadi. `,
-    });
+    // Initialize Paystack transaction
+    const response = await axios.post(
+      "https://api.paystack.co/transaction/initialize",
+      {
+        amount: subscriptionAmount * 100, // Convert to kobo
+        email: driver.email,
+        metadata: {
+          custom_fields: [
+            {
+              variable_name: "driver_id",
+              value: driverId,
+            },
+            {
+              variable_name: "mechanic_id",
+              value: mechanicId,
+            },
+            {
+              variable_name: "package_id",
+              value: packageId,
+            },
+            {
+              variable_name: "subscription_type",
+              value: subscriptionType,
+            },
+            {
+              variable_name: "payment_model",
+              value: "new-service-plan-subscription",
+            },
+          ]
+        }
+      },{
+        headers: {
+          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    // Deconstruct response data
+    const { status, message, data } = response.data;
 
     res.status(201).json({
-      message: "Service plan subscription created successfully",
-      subscription: savedSubscription,
-      payment: savedPayment.subscriptionAmount,
+      success: status,
+      message: message,
+      authorization_url: data.authorization_url,
     });
   } catch (err) {
     res.status(500).json({ message: `Server error: ${err.message}` });
@@ -87,44 +99,50 @@ exports.renewSubscription = async (req, res) => {
         return res.status(404).json({ message: "Subscription not found" });
       }
       if (subscription.subscriptionStatus === false) {
-        return res.status(404).json({ message: "Cannot renew a cancelled subscription" });
+        return res
+          .status(404)
+          .json({ message: "Cannot renew a cancelled subscription" });
       }
 
-      const daysLeft = Math.ceil((subscription.endDate - new Date()) / (1000 * 60 * 60 * 24));
-      console.log(`Days left: ${daysLeft}`);
-      
-      if (daysLeft <= 7) {
-        return res.status(400).json({ message: `Subscription is still active with ${daysLeft} day(s) left` });
-      }
-
-      const newEndDate = new Date(
-        subscription.endDate.getTime() + 30 * 24 * 60 * 60 * 1000
-      ); // Extend by 30 days
-      subscription.endDate = newEndDate;
-      subscription.subscriptionStatus = true;
-      await subscription.save();
-
-      // Create payment record for renewal
-      const servicePlanPayment = new ServicePlanPayment({
-        subscriptionId: subscription._id,
-        driverId: subscription.driverId,
-        mechanicId: subscription.mechanicId,
-        subscriptionAmount: subscription.subscriptionAmount,
-      });
-      await servicePlanPayment.save();
-
-      // Send SMS notification to driver
+      // Check for existing driver
       const driver = await User.findById(subscription.driverId);
-      const mechanic = await User.findById(subscription.mechanicId);
-      await smsInfo({
-        phoneNumber: driver.phoneNumber,
-        msg: `Dear ${driver.fullName}, your subscription to ${mechanic.fullName}'s ${subscription.subscriptionType} has been renewed with AutoPadi.`,
-      });
+      if (!driver) {
+        return res.status(404).json({ message: "Driver not found" });
+      }
 
-      res.status(200).json({
-        message: "Subscription renewed successfully",
-        subscription,
-        payment: servicePlanPayment.subscriptionAmount,
+      // Initialize Paystack transaction
+      const response = await axios.post(
+        "https://api.paystack.co/transaction/initialize",
+        {
+          amount: subscription.subscriptionAmount * 100, // Convert to kobo
+          email: driver.email,
+          metadata: {
+            custom_fields: [
+              {
+                variable_name: "subscription_id",
+                value: subscription._id,
+              },
+              {
+                variable_name: "payment_model",
+                value: "renew-service-plan-subscription",
+              },
+            ],
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      // Deconstruct response data
+      const { status, message, data } = response.data;
+
+      res.status(201).json({
+        success: status,
+        message: message,
+        authorization_url: data.authorization_url,
       });
     } catch (err) {
         res.status(500).json({ 

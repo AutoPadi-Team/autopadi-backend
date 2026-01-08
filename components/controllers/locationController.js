@@ -25,6 +25,33 @@ exports.getAllMechanicsLocations = async (req, res) => {
     }
 };
 
+exports.getMechanicAvailabilityStatusAndTime = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await User.findById(id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "Mechanic not found",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Mechanic availability status and time retrieved successfully",
+            availability: user.availability,
+            availabilityTime: user.availabilityTime,
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: `Internal server error: ${error.message}`,
+        });
+    }
+};
+
 // update mechanic availability status and time
 exports.updateAvailability = async (req, res) => {
     const { availability } = req.body;

@@ -15,6 +15,8 @@ const locationRoute = require("./components/routes/locationRoute");
 const servicePlanSubscriptionRoute = require("./components/routes/ServicePlanSubscriptionRoute");
 const ServiceSubscriptionReminders = require("./components/reminders/ServiceSubscriptionReminders");
 const servicePlanPaymentRoute = require("./components/routes/servicePlanPaymentRoute");
+const mechanicServiceSubscriptionBalanceRoute = require("./components/routes/mechanicSubscriptionBalanceRoute");
+const paystackWebhookRoute = require("./components/routes/paystackWebhookRoute");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -26,7 +28,14 @@ ServiceSubscriptionReminders();
 
 const app = express();
 const port = process.env.PORT || 5000;
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf;
+    },
+  })
+);
+// app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
 
@@ -43,6 +52,8 @@ app.use("/api", brandServiceListRoute);
 app.use("/api", locationRoute);
 app.use("/api", servicePlanSubscriptionRoute);
 app.use("/api", servicePlanPaymentRoute);
+app.use("/api", mechanicServiceSubscriptionBalanceRoute);
+app.use("/api", paystackWebhookRoute);
 
 // Redirect HTTP to HTTPS
 // app.use((req, res, next) => {

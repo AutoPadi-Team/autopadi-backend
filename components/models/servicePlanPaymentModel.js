@@ -16,6 +16,15 @@ const servicePlanPaymentSchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
+    reference: {
+        type: String,
+    },
+    paymentChannel: {
+        type: String,
+    },
+    subscriptionType: {
+        type: String,
+    },
     subscriptionAmount: {
         type: Number,
         required: true,
