@@ -15,7 +15,6 @@ exports.paystackWebhook = async (req, res) => {
 
     // Process the webhook event data
     const event = req.body;
-    // Extract relevant data from the event
     const { reference, amount, channel, metadata } = event.data;
     const driverId = metadata?.custom_fields.find(f => f.variable_name === "driver_id")?.value;
     const mechanicId = metadata?.custom_fields.find(f => f.variable_name === "mechanic_id")?.value;
@@ -29,7 +28,7 @@ exports.paystackWebhook = async (req, res) => {
     
     // Log the received data for debugging
     const paymentData = { driverId, mechanicId, packageId, subscriptionType, subscriptionAmount, paymentReference, moneyChannel, metadata, subscriptionId, paymentModel };
-    console.log("✅ Received Paystack Webhook Event:", JSON.stringify(paymentData, null, 2));
+    console.log("Received Paystack Webhook Event:", JSON.stringify(paymentData, null, 2));
 
     // Handle new service plan subscription payment
     if (event.event === "charge.success" && paymentModel === "new-service-plan-subscription") {
@@ -43,7 +42,6 @@ exports.paystackWebhook = async (req, res) => {
         subscriptionType,
         subscriptionAmount,
         subscriptionStatus: true,
-        maintenanceTask: "pending",
         startDate: start,
         endDate: stopDate,
       });
@@ -100,7 +98,6 @@ exports.paystackWebhook = async (req, res) => {
       ); // Extend by 30 days
       subscription.endDate = newEndDate;
       subscription.subscriptionStatus = true;
-      subscription.maintenanceTask = "pending";
       await subscription.save();
 
       // Create payment record for renewal
@@ -134,25 +131,6 @@ exports.paystackWebhook = async (req, res) => {
           subscription.subscriptionType
         } has been renewed with AutoPadi.\nStart Date: ${subscription.startDate.toDateString()}\nEnd Date: ${subscription.endDate.toDateString()}`,
       });
-    }
-
-
-    // Handle transfer  events
-    if(event.event.startsWith("transfer.")) {
-      // transfer successful
-      if (event.event === "transfer.success") {
-        console.log(`✅ Transfer successful: ${event.event}`);
-      }
-
-      // transfer failed
-      if (event.event === "transfer.failed") {
-        console.log(`❌ Transfer failed: ${event.event}`);
-      }
-
-      // transfer reversed
-      if (event.event === "transfer.reversed") {
-        console.log(`↩️ Transfer reversed: ${event.event}`);
-      }
     }
 
     res.status(200).json({ message: "Webhook received successfully" });

@@ -35,11 +35,6 @@ const servicePlanSubscriptionSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  maintenanceTask: {
-    type: String,
-    enum: ["pending", "completed"],
-    default: "pending",
-  }
 });
 module.exports = mongoose.model(
   "ServicePlanSubscription",

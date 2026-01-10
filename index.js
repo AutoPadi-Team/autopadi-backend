@@ -17,7 +17,6 @@ const ServiceSubscriptionReminders = require("./components/reminders/ServiceSubs
 const servicePlanPaymentRoute = require("./components/routes/servicePlanPaymentRoute");
 const mechanicServiceSubscriptionBalanceRoute = require("./components/routes/mechanicSubscriptionBalanceRoute");
 const paystackWebhookRoute = require("./components/routes/paystackWebhookRoute");
-const cashTransferRoute = require("./components/routes/cashTransferRoute");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -55,7 +54,6 @@ app.use("/api", servicePlanSubscriptionRoute);
 app.use("/api", servicePlanPaymentRoute);
 app.use("/api", mechanicServiceSubscriptionBalanceRoute);
 app.use("/api", paystackWebhookRoute);
-app.use("/api", cashTransferRoute);
 
 // Redirect HTTP to HTTPS
 // app.use((req, res, next) => {
@@ -64,6 +62,31 @@ app.use("/api", cashTransferRoute);
 //   }
 //   next();
 // });
+
+// const cron = require("node-cron");
+// const task = () => {
+//   console.log("Running a task every day " + new Date());
+//   let data = [
+//     { date: new Date("2026-01-02T00:00:00.00+00:00"), event: "Event 1" },
+//     { date: new Date("2026-01-02T00:00:00.00+00:00"), event: "Event 2" },
+//     { date: new Date("2026-01-02T00:00:00.00+00:00"), event: "Event 3" },
+//     { date: new Date("2026-01-02T00:00:00.00+00:00"), event: "Event 4" },
+//     { date: new Date("2026-01-04T00:00:00.00+00:00"), event: "Event 5" },
+//     { date: new Date("2026-01-04T00:00:00.00+00:00"), event: "Event 6" },
+//     { date: new Date("2026-01-04T00:00:00.00+00:00"), event: "Event 7" },
+//     { date: new Date("2026-01-04T00:00:00.00+00:00"), event: "Event 8" },
+//   ];
+
+//   for (let dataItem of data) {
+//     const daysLeft = Math.floor(
+//       new Date(dataItem.date - Date.now()) / (1000 * 60 * 60 * 24)
+//     );
+//     if (daysLeft === 3) {
+//       console.log(`Less than ${daysLeft} days remaining until target date for event ${dataItem.event}.`);
+//     }
+//   }
+// };
+// cron.schedule("*/5 * * * * *", task);
 
 // Default route
 app.get("/", (req, res) => {
