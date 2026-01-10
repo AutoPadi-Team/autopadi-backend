@@ -1,9 +1,7 @@
 const ServicePlanSubscription = require("../models/ServicePlanSubscriptionModel");
-const ServicePlanPayment = require("../models/servicePlanPaymentModel");
-const MechanicSubscriptionBalance = require("../models/mechanicSubscriptionBalanceModel");
 const User = require("../models/usersModel");
 const smsInfo = require("../smsSender/smsInfo");
-const axios = require("axios");
+const api = require("../axiosApi/api");
 
 // Subscribe to a service plan
 exports.subscribeToServicePlan = async (req, res) => {
@@ -40,8 +38,8 @@ exports.subscribeToServicePlan = async (req, res) => {
     }
 
     // Initialize Paystack transaction
-    const response = await axios.post(
-      "https://api.paystack.co/transaction/initialize",
+    const response = await api.post(
+      "transaction/initialize",
       {
         amount: subscriptionAmount * 100, // Convert to kobo
         email: driver.email,
@@ -68,11 +66,6 @@ exports.subscribeToServicePlan = async (req, res) => {
               value: "new-service-plan-subscription",
             },
           ]
-        }
-      },{
-        headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-          'Content-Type': 'application/json'
         }
       }
     );
@@ -111,8 +104,8 @@ exports.renewSubscription = async (req, res) => {
       }
 
       // Initialize Paystack transaction
-      const response = await axios.post(
-        "https://api.paystack.co/transaction/initialize",
+      const response = await api.post(
+        "transaction/initialize",
         {
           amount: subscription.subscriptionAmount * 100, // Convert to kobo
           email: driver.email,
@@ -129,12 +122,6 @@ exports.renewSubscription = async (req, res) => {
             ],
           },
         },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-            "Content-Type": "application/json",
-          },
-        }
       );
       // Deconstruct response data
       const { status, message, data } = response.data;
@@ -211,6 +198,24 @@ exports.getAllSubscriptions = async (req, res) => {
         res.status(200).json({ message: "Service plan subscription retrieved successfully", subscriptions });
     }
     catch (err) {
+        res.status(500).json({ message: `Server error: ${err.message}` });
+    }
+};
+
+// update service plan subscription maintenance task status
+exports.updateMaintenanceTaskStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const subscription = await ServicePlanSubscription.findByIdAndUpdate(
+          id,
+          { maintenanceTask: "completed" },
+          { new: true }
+        );
+        if (!subscription) {
+            return res.status(404).json({ message: "Subscription not found" });
+        }
+        res.status(200).json({ message: "Maintenance task status updated successfully", subscription });
+    } catch (err) {
         res.status(500).json({ message: `Server error: ${err.message}` });
     }
 };
