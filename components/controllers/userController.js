@@ -546,7 +546,17 @@ exports.getUserDetails = async (req, res) => {
     const user = await User.findById(id)
       .select("-password")
       .populate("profileImage", "image")
-      .populate("businessDetails");
+      .populate("businessDetails")
+      .populate({
+        path: "connectors",
+        select: "fullName email phoneNumber location isVerified role",
+        populate: { path: "profileImage", select: "image" },
+      })
+      .populate({
+        path: "connected",
+        select: "fullName email phoneNumber location isVerified role",
+        populate: { path: "profileImage", select: "image" },
+      });
     if (!user) {
       return res.status(404).json({
         success: false,
