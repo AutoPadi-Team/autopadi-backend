@@ -27,11 +27,6 @@ const servicePlanSubscriptionSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
-  maintenanceTask: {
-    type: String,
-    enum: ["pending", "completed"],
-    default: "pending",
-  },
   startDate: {
     type: Date,
     required: true,
