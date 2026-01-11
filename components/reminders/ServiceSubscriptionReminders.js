@@ -168,7 +168,7 @@ const smsInfo = require("../smsSender/smsInfo");
 
 const ServiceSubscriptionReminders = async () => {
   try {
-    const now = new Date();
+    const now = new Date(); // Pick up the current date
 
     // Update subscriptionStatus to false for expired subscriptions
     const deactivatedSubscriptions = await ServicePlanSubscriptionModel.updateMany(
