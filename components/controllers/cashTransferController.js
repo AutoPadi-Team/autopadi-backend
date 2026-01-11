@@ -87,7 +87,7 @@ exports.sendMoneyToRecipient = async (req, res) => {
         message: "recipient not found",
       });
     }
-    console.log(`Generated UUID: txn_${referenceCode}`);
+    console.log(`Generated UUID: txn_${referenceCode}`); // for debugging
     const response = await api.post("transfer", {
       source: "balance",
       amount: amount * 100, // amount in pesewas from ghana cedi
