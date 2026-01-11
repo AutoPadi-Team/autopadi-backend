@@ -1,6 +1,7 @@
 const api = require("../axiosApi/api");
 const Recipient = require("../models/recipientModel");
 const RecipientCashTransfer = require("../models/recipientCashTransfer");
+const mechanicSubscriptionBalance = require("../models/mechanicSubscriptionBalanceModel");
 const { v4 } = require("uuid");
 const referenceCode = v4();
 
@@ -75,7 +76,23 @@ exports.createTransferReceipt = async (req, res) => {
 // Send money to recipient
 exports.sendMoneyToRecipient = async (req, res) => {
   try {
-    const { amount, accountNumber } = req.body;
+    const { amount, accountNumber, mechanicId } = req.body;
+
+    const existingMechanicBalance = await mechanicSubscriptionBalance.findOne({
+      mechanicId: mechanicId,
+    });
+    if (amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Amount must be greater than zero",
+      });
+    }
+    if (existingMechanicBalance.balanceAmount < amount) {
+      return res.status(400).json({
+        success: false,
+        message: `Insufficient balance: ${existingMechanicBalance.balanceAmount.toFixed(2)}`,
+      });
+    }
 
     // Verify recipient exists
     const existingRecipient = await Recipient.findOne({
@@ -101,14 +118,15 @@ exports.sendMoneyToRecipient = async (req, res) => {
 
     // Save transfer details to database
     const newTransfer = new RecipientCashTransfer({
-      name: existingRecipient.name,
-      accountNumber: existingRecipient.accountNumber,
-      bankCode: existingRecipient.bankCode,
-      amount: amount,
-      recipientCode: existingRecipient.recipientCode,
-      reference: data.reference,
-      transferCode: data.transfer_code,
-      transferStatus: "pending",
+        mechanicId: mechanicId,
+        name: existingRecipient.name,
+        accountNumber: existingRecipient.accountNumber,
+        bankCode: existingRecipient.bankCode,
+        amount: amount,
+        recipientCode: existingRecipient.recipientCode,
+        reference: data.reference,
+        transferCode: data.transfer_code,
+        transferStatus: "pending",
     });
     const savedTransfer = await newTransfer.save();
 

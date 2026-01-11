@@ -142,12 +142,20 @@ exports.paystackWebhook = async (req, res) => {
       const { reference } = event.data;
       // transfer successful
       if (event.event === "transfer.success") {
-        await CashTransfer.findOneAndUpdate(
+        const cashTransfer = await CashTransfer.findOneAndUpdate(
           { reference: reference },
           { transferStatus: "successful" },
           { new: true }
         );
-        console.log(`✅ Transfer successful: ${event.event}`, JSON.parse(CashTransfer.transferStatus, null, 2));
+        // Update mechanic subscription balance
+        await MechanicSubscriptionBalance.findOneAndUpdate(
+          {
+            mechanicId: cashTransfer.mechanicId,
+          },
+          { $inc: { balanceAmount: -cashTransfer.amount } },
+          { new: true }
+        );
+        console.log(`✅ Transfer successful: ${event.event} - ${JSON.stringify(cashTransfer, null, 2)}`);
       }
 
       // transfer failed
