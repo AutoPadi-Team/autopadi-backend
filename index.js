@@ -17,7 +17,6 @@ const ServiceSubscriptionReminders = require("./components/reminders/ServiceSubs
 const servicePlanPaymentRoute = require("./components/routes/servicePlanPaymentRoute");
 const mechanicServiceSubscriptionBalanceRoute = require("./components/routes/mechanicSubscriptionBalanceRoute");
 const paystackWebhookRoute = require("./components/routes/paystackWebhookRoute");
-const cashTransferRoute = require("./components/routes/cashTransferRoute");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -55,7 +54,6 @@ app.use("/api", servicePlanSubscriptionRoute);
 app.use("/api", servicePlanPaymentRoute);
 app.use("/api", mechanicServiceSubscriptionBalanceRoute);
 app.use("/api", paystackWebhookRoute);
-app.use("/api", cashTransferRoute);
 
 // Redirect HTTP to HTTPS
 // app.use((req, res, next) => {
