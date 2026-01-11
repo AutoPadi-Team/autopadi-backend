@@ -104,7 +104,7 @@ exports.sendMoneyToRecipient = async (req, res) => {
       name: existingRecipient.name,
       accountNumber: existingRecipient.accountNumber,
       bankCode: existingRecipient.bankCode,
-      amount: amount/100,
+      amount: amount,
       recipientCode: existingRecipient.recipientCode,
       reference: data.reference,
       transferCode: data.transfer_code,
