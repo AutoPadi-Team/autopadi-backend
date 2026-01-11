@@ -550,12 +550,18 @@ exports.getUserDetails = async (req, res) => {
       .populate({
         path: "connectors",
         select: "fullName email phoneNumber location isVerified role",
-        populate: { path: "profileImage", select: "image" },
+        populate: { path: "profileImage", select: "image" }
       })
       .populate({
         path: "connected",
         select: "fullName email phoneNumber location isVerified role",
-        populate: { path: "profileImage", select: "image" },
+        populate: [
+          { path: "profileImage", select: "image" },
+          {
+            path: "businessDetails",
+            select: "picture businessName businessPhoneNumber",
+          },
+        ],
       });
     if (!user) {
       return res.status(404).json({
