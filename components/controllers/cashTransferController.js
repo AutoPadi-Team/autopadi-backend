@@ -1,8 +1,8 @@
 const api = require("../axiosApi/api");
 const Recipient = require("../models/recipientModel");
 const RecipientCashTransfer = require("../models/recipientCashTransfer");
-const { v4: uuid4 } = require("uuid");
-const referenceCode = uuid4();
+// const { v4: uuid4 } = require("uuid");
+// const referenceCode = uuid4();
 
 // Get mobile money list
 exports.getMobileMoneyList = async (req, res) => {
