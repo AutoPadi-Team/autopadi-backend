@@ -1,9 +1,7 @@
 const ServicePlanSubscription = require("../models/ServicePlanSubscriptionModel");
-const ServicePlanPayment = require("../models/servicePlanPaymentModel");
-const MechanicSubscriptionBalance = require("../models/mechanicSubscriptionBalanceModel");
 const User = require("../models/usersModel");
 const smsInfo = require("../smsSender/smsInfo");
-const axios = require("axios");
+const api = require("../axiosApi/api");
 
 // Subscribe to a service plan
 exports.subscribeToServicePlan = async (req, res) => {
@@ -40,7 +38,7 @@ exports.subscribeToServicePlan = async (req, res) => {
     }
 
     // Initialize Paystack transaction
-    const response = await axios.post(
+    const response = await api.post(
       "https://api.paystack.co/transaction/initialize",
       {
         amount: subscriptionAmount * 100, // Convert to kobo
@@ -68,11 +66,6 @@ exports.subscribeToServicePlan = async (req, res) => {
               value: "new-service-plan-subscription",
             },
           ]
-        }
-      },{
-        headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-          'Content-Type': 'application/json'
         }
       }
     );
@@ -111,7 +104,7 @@ exports.renewSubscription = async (req, res) => {
       }
 
       // Initialize Paystack transaction
-      const response = await axios.post(
+      const response = await api.post(
         "https://api.paystack.co/transaction/initialize",
         {
           amount: subscription.subscriptionAmount * 100, // Convert to kobo
@@ -127,12 +120,6 @@ exports.renewSubscription = async (req, res) => {
                 value: "renew-service-plan-subscription",
               },
             ],
-          },
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-            "Content-Type": "application/json",
           },
         }
       );
