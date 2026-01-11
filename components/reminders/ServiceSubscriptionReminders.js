@@ -202,7 +202,7 @@ const ServiceSubscriptionReminders = async () => {
       if (sub.maintenanceTask === "pending" && [10, 7, 3, 1].includes(daysLeft)) {
         const firstName = mechanic.fullName.split(" ")[0];
         const message = `Dear ${firstName}, complete monthly ${sub.subscriptionType} servicing for ${driver.fullName}. Kindly update the subscription maintenance task when done.`;
-
+        // Send sms
         await smsInfo({
           phoneNumber: mechanic.phoneNumber,
           msg: message,
@@ -215,7 +215,7 @@ const ServiceSubscriptionReminders = async () => {
         const firstName = driver.fullName.split(" ")[0];
         const expiryText = daysLeft === 1 ? "tomorrow" : `in ${daysLeft} days`;
         const message = `Dear ${firstName}, your subscription to ${mechanic.fullName}'s ${sub.subscriptionType} expires ${expiryText} (${sub.endDate.toDateString()}). Renew now with AutoPadi to avoid service cuts.`;
-
+        // Send sms
         await smsInfo({
           phoneNumber: driver.phoneNumber,
           msg: message,
