@@ -202,3 +202,21 @@ exports.getAllSubscriptions = async (req, res) => {
         res.status(500).json({ message: `Server error: ${err.message}` });
     }
 };
+
+// update service plan subscription maintenance task status
+exports.updateMaintenanceTaskStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const subscription = await ServicePlanSubscription.findByIdAndUpdate(
+          id,
+          { maintenanceTask: "completed" },
+          { new: true }
+        );
+        if (!subscription) {
+            return res.status(404).json({ message: "Subscription not found" });
+        }
+        res.status(200).json({ message: "Maintenance task status updated successfully", subscription });
+    } catch (err) {
+        res.status(500).json({ message: `Server error: ${err.message}` });
+    }
+};
