@@ -147,7 +147,7 @@ exports.paystackWebhook = async (req, res) => {
           { transferStatus: "successful" },
           { new: true }
         );
-        console.log(`✅ Transfer successful: ${event.event}`, JSON.stringify(CashTransfer, null, 2));
+        console.log(`✅ Transfer successful: ${event.event}`, JSON.parse(CashTransfer.transferStatus, null, 2));
       }
 
       // transfer failed
