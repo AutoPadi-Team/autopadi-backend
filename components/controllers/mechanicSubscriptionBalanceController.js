@@ -18,3 +18,17 @@ exports.getMechanicSubscriptionBalance = async (req, res) => {
     res.status(500).json({ message: `Server error ${err.message}` });
   }
 };
+
+// get all mechanic subscription balances (admin)
+exports.getAllMechanicSubscriptionBalances = async (req, res) => {
+  try { 
+    const balanceRecords = await MechanicSubscriptionBalance.find()
+      .populate("mechanicId", "fullName phoneNumber email").sort({ createdAt: -1 });
+    res.status(200).json({  
+      message: "Mechanic subscription balances retrieved successfully",
+      balanceRecords,
+    });
+  } catch (err) {
+    res.status(500).json({ message: `Server error ${err.message}` });
+  } 
+};
