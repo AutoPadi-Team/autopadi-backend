@@ -5,8 +5,7 @@ const cloudinary = require("../middleware/cloudinary");
 // add a vehicle profile
 exports.addVehicle = async (req, res) => {
   try {
-    const { driverId, carBrand, carModel, carYear, carLicensePlateNumber, carColor } =
-      req.body;
+    const { driverId, carBrand, carModel, carYear, carLicensePlateNumber, carColor } = req.body;
 
     // check if the image is empty
     let image;
