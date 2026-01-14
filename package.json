@@ -6,6 +6,9 @@
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "repository": "https://github.com/AutoPadi-Team/autopadi-backend.git",
   "author": "Buertey Accam <111708279+george-accam@users.noreply.github.com>",
   "license": "MIT",
@@ -24,6 +27,7 @@
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.5",
     "nodemon": "^3.1.10",
+    "socket.io": "^4.8.3",
     "uuid": "8"
   }
 }

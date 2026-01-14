@@ -18,6 +18,9 @@ const servicePlanPaymentRoute = require("./components/routes/servicePlanPaymentR
 const mechanicServiceSubscriptionBalanceRoute = require("./components/routes/mechanicSubscriptionBalanceRoute");
 const paystackWebhookRoute = require("./components/routes/paystackWebhookRoute");
 const cashTransferRoute = require("./components/routes/cashTransferRoute");
+const requestConnection = require("./components/routes/requestConnectionRoute");
+const socketIo = require("socket.io");
+const http = require("http")
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -26,6 +29,7 @@ connectDB();
 
 // Initialize service subscription reminders
 ServiceSubscriptionReminders();
+
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -36,6 +40,33 @@ app.use(
     },
   })
 );
+
+//Create server and connect to socket
+const server = http.createServer(app);
+const io = socketIo(server, { 
+  cors: {
+    origin: "*"
+  } 
+})
+
+io.on("connection", (socket) => {
+  console.log(`User connection ID: ${socket.id}`);
+
+  // Accept response
+  socket.on("message", (data) => {
+    console.log(`message: ${data}`);
+  })
+
+  // Send response
+  socket.emit("new-message", (data) => {
+    console.log(`new-message: ${data}`);
+  });
+
+  socket.on("disconnect", () => {
+    console.error("User disconnected");
+  });
+})
+
 // app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
@@ -56,6 +87,7 @@ app.use("/api", servicePlanPaymentRoute);
 app.use("/api", mechanicServiceSubscriptionBalanceRoute);
 app.use("/api", paystackWebhookRoute);
 app.use("/api", cashTransferRoute);
+app.use("/api", requestConnection);
 
 // Redirect HTTP to HTTPS
 // app.use((req, res, next) => {
@@ -95,6 +127,6 @@ app.get("/", (req, res) => {
   res.json({ message: "AutoPadi server running successfully.." });
 });
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
