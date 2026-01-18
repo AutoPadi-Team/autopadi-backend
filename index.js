@@ -21,6 +21,7 @@ const cashTransferRoute = require("./components/routes/cashTransferRoute");
 const requestConnection = require("./components/routes/requestConnectionRoute");
 const socketIo = require("socket.io");
 const http = require("http")
+const { socketStarter } = require("./components/websocket/server")
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -43,31 +44,9 @@ app.use(
 
 //Create server and connect to socket
 const server = http.createServer(app);
-const io = socketIo(server, { 
-  cors: {
-    origin: "*"
-  } 
-})
+socketStarter(server); // Start socket server
 
-io.on("connection", (socket) => {
-  console.log(`User connection ID: ${socket.id}`);
 
-  // Accept response
-  socket.on("message", (data) => {
-    console.log(`message: ${data}`);
-  })
-
-  // Send response
-  socket.emit("new-message", (data) => {
-    console.log(`new-message: ${data}`);
-  });
-
-  socket.on("disconnect", () => {
-    console.error("User disconnected");
-  });
-})
-
-// app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
 

@@ -1,6 +1,7 @@
 const cloudinary = require("../middleware/cloudinary");
 const BusinessProfile = require("../models/businessProfile");
-const Profile = require("../models/userProfile");
+const ServicePlanSubscription = require("../models/ServicePlanSubscriptionModel")
+const MechanicServicePlan = require("../models/mechanicServicePlanModel")
 const User = require("../models/usersModel");
 
 // Create business profile
@@ -213,10 +214,19 @@ exports.getBusinessProfile = async (req, res) => {
         message: "business profile not found",
       });
     }
+
+    // mechanics service plans
+    const existingMechanicServicePlan = await MechanicServicePlan.find({ mechanic: mechanicId }).populate("package");
+
+    // find mechanic's customers service plan subscription
+    const existingServicePlanSubscription = await ServicePlanSubscription.find({ mechanicId });
+
     res.status(200).json({
       success: true,
       message: "business profile fetched successfully.",
       businessProfile,
+      mechanicServicePlan: existingMechanicServicePlan,
+      customersSubscribedServicePlans: existingServicePlanSubscription,
     });
   } catch (error) {
     res
