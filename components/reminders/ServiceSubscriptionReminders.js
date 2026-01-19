@@ -159,7 +159,7 @@
 //   }
 // };
 
-// cron.schedule("0 8 * * *", ServiceSubscriptionReminders); // */10 * * * * *
+// cron.schedule("0 8 * * *", ServiceSubscriptionReminders);
 // module.exports = ServiceSubscriptionReminders; 
 
 const cron = require("node-cron");
