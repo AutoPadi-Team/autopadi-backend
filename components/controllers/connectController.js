@@ -72,7 +72,7 @@ exports.connectDriver = async (req, res) => {
     const mechanicId = req.user.id;
     const { driverId } = req.params;
 
-    // check if driver exists
+    // check if driver exist
     const driver = await User.findById(driverId);
     if (!driver || driver.role !== "driver") {
       return res
