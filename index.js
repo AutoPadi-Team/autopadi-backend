@@ -33,7 +33,7 @@ ServiceSubscriptionReminders();
 
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 8080;
 app.use(
   express.json({
     verify: (req, res, buf) => {
@@ -68,6 +68,8 @@ app.use("/api", paystackWebhookRoute);
 app.use("/api", cashTransferRoute);
 app.use("/api", requestConnection);
 
+
+// Default route
 // Redirect HTTP to HTTPS
 // app.use((req, res, next) => {
 //   if (req.headers["x-forwarded-proto"] !== "https") {
@@ -76,32 +78,6 @@ app.use("/api", requestConnection);
 //   next();
 // });
 
-// const cron = require("node-cron");
-// const task = () => {
-//   console.log("Running a task every day " + new Date());
-//   let data = [
-//     { date: new Date("2026-01-02T00:00:00.00+00:00"), event: "Event 1" },
-//     { date: new Date("2026-01-02T00:00:00.00+00:00"), event: "Event 2" },
-//     { date: new Date("2026-01-02T00:00:00.00+00:00"), event: "Event 3" },
-//     { date: new Date("2026-01-02T00:00:00.00+00:00"), event: "Event 4" },
-//     { date: new Date("2026-01-04T00:00:00.00+00:00"), event: "Event 5" },
-//     { date: new Date("2026-01-04T00:00:00.00+00:00"), event: "Event 6" },
-//     { date: new Date("2026-01-04T00:00:00.00+00:00"), event: "Event 7" },
-//     { date: new Date("2026-01-04T00:00:00.00+00:00"), event: "Event 8" },
-//   ];
-
-//   for (let dataItem of data) {
-//     const daysLeft = Math.floor(
-//       new Date(dataItem.date - Date.now()) / (1000 * 60 * 60 * 24)
-//     );
-//     if (daysLeft === 3) {
-//       console.log(`Less than ${daysLeft} days remaining until target date for event ${dataItem.event}.`);
-//     }
-//   }
-// };
-// cron.schedule("*/5 * * * * *", task);
-
-// Default route
 app.get("/", (req, res) => {
   res.json({ message: "AutoPadi server running successfully.." });
 });
