@@ -221,7 +221,8 @@ exports.getBusinessProfile = async (req, res) => {
     // find mechanic's customers service plan subscription
     const existingServicePlanSubscription = await ServicePlanSubscription.find({
       mechanicId,
-    }).populate("packageId", "title bonuses terms");
+      subscriptionStatus: true,
+    }).populate("packageId", "title bonuses terms").populate("driverId", "fullName phoneNumber");
 
     res.status(200).json({
       success: true,

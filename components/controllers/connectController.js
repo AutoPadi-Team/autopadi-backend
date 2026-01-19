@@ -77,12 +77,39 @@ exports.connectDriver = async (req, res) => {
     if (!driver || driver.role !== "driver") {
       return res
         .status(404)
-        .json({ success: false, message: "Driver not found" });
+        .json({ 
+          success: false,
+          message: "Driver not found"
+        });
     }
+
+    // Check for already sent request
+    const existingRequest = await RequestConnection.findOne({
+      $and: [{ driverId }, { mechanicId }, { requestStatus: "accepted" }],
+    });
+    if (existingRequest) {
+      res.status(404).json({
+        success: false,
+        message: "Request already accepted",
+      });
+    }
+
+    // update request connection
+    const requestConnection = await RequestConnection.findOneAndUpdate(
+      {
+        $and: [{ mechanicId }, { driverId }],
+      },
+      {
+        requestStatus: "accepted",
+      },
+      {
+        new: true,
+      }
+    );
 
     const mechanic = await User.findById(mechanicId);
     // check if mechanic has reached 9 max connectors and is not premium member
-    if(mechanic.connectorsCount >= 9 && !mechanic.premiumMember) {
+    if (mechanic.connectorsCount >= 9 && !mechanic.premiumMember) {
       return res.status(403).json({
         success: false,
         message: `You've reached the maximum number of (9) driver connections.`,
@@ -111,14 +138,6 @@ exports.connectDriver = async (req, res) => {
       { new: true }
     );
 
-    // remove the request from request database
-    const requestConnection = await RequestConnection.deleteOne({
-      $and: [
-        { mechanicId },
-        { driverId }
-      ]
-    })
-
     res.status(200).json({
       success: true,
       message: "Connected to mechanic successfully",
@@ -130,7 +149,7 @@ exports.connectDriver = async (req, res) => {
         connectors: updatedMechanicConnectors.connectors,
         connectorsCount: updatedMechanicConnectors.connectorsCount,
       },
-      requestRemove: requestConnection.deletedCount
+      requestStatus: requestConnection.requestStatus,
     });
   } catch (error) {
     res.status(500).json({
