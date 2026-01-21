@@ -50,6 +50,13 @@ socketStarter(server); // Start socket server
 app.use(cors());
 app.use(cookieParser());
 
+// health check
+app.use((req, res) => {
+  res.status(200).json({
+    status: "ok"
+  })
+});
+
 // Use user routes
 app.use("/api", userRoutes);
 app.use("/api", vehicleRoutes);
@@ -69,17 +76,11 @@ app.use("/api", cashTransferRoute);
 app.use("/api", requestConnection);
 
 
-// health check
-app.use((req, res) => {
-  res.status(200).json({
-    status: "ok"
-  })
-});
-
+// default route
 app.get("/", (req, res) => {
   res.json({ message: "AutoPadi server running successfully.." });
 });
 
-server.listen(port, () => {
+server.listen(port, '0.0.0.0', () => {
   console.log(`Server running at http://localhost:${port}`);
 });
