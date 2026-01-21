@@ -571,7 +571,16 @@ exports.getUserDetails = async (req, res) => {
       });
     };
 
-    const servicePlanSubscription = await ServicePlanSubscription.find({ driverId: user._id})
+    const servicePlanSubscription = await ServicePlanSubscription.find({
+      driverId: user._id,
+    }).populate({
+      path: "mechanicId",
+      select: "role",
+      populate: {
+        path: "businessDetails",
+        select: "mechanicId businessName businessPhoneNumber",
+      },
+    });
 
     res.status(200).json({
       success: true,
