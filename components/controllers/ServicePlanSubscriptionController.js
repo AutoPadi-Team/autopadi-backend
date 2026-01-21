@@ -21,8 +21,7 @@ exports.subscribeToServicePlan = async (req, res) => {
 
     // Check for existing active subscription
     const existingSubscription = await ServicePlanSubscription.findOne({
-      driverId,
-      mechanicId,
+     $and: [ { driverId }, { mechanicId } ],
       subscriptionStatus: true,
     });
 
