@@ -11,6 +11,7 @@ const userProfile = require("../models/userProfile");
 const InactiveUser = require("../models/inactiveUser");
 const MechanicServiceSubscriptionBalance = require("../models/mechanicSubscriptionBalanceModel");
 const smsSender = require("../smsSender/smsSender");
+const ServicePlanSubscription = require("../models/ServicePlanSubscriptionModel");
 
 // generate a verification code
 const generateVerificationCode = () => {
@@ -568,12 +569,15 @@ exports.getUserDetails = async (req, res) => {
         success: false,
         message: "user not found",
       });
-    }
+    };
+
+    const servicePlanSubscription = await ServicePlanSubscription.find({ driverId: user._id})
 
     res.status(200).json({
       success: true,
       message: "user retrieved successfully",
       userDetails: user,
+      driverServicePlanSubscriptions: servicePlanSubscription,
     });
   } catch (error) {
     res.status(500).json({ message: `Server error: ${error.message}` });

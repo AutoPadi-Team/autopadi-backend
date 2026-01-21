@@ -1,4 +1,3 @@
-const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
