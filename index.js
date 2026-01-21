@@ -69,14 +69,12 @@ app.use("/api", cashTransferRoute);
 app.use("/api", requestConnection);
 
 
-// Default route
-// Redirect HTTP to HTTPS
-// app.use((req, res, next) => {
-//   if (req.headers["x-forwarded-proto"] !== "https") {
-//     return res.redirect(301, `https://${req.headers.host}${req.url}`);
-//   }
-//   next();
-// });
+// health check
+app.use((req, res) => {
+  res.status(200).json({
+    status: "ok"
+  })
+});
 
 app.get("/", (req, res) => {
   res.json({ message: "AutoPadi server running successfully.." });
