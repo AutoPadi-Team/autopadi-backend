@@ -222,7 +222,7 @@ exports.getBusinessProfile = async (req, res) => {
     const existingServicePlanSubscription = await ServicePlanSubscription.find({
       mechanicId,
       subscriptionStatus: true,
-    }).populate("packageId", "title bonuses terms").populate("driverId", "fullName phoneNumber");
+    }).populate("packageId").populate("driverId", "fullName phoneNumber");
 
     res.status(200).json({
       success: true,

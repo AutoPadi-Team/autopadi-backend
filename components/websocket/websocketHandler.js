@@ -1,13 +1,37 @@
+const connectedMechanics = new Map(); // store mechanic socket id
+const connectedDrivers = new Map(); // store driver socket id
 
 
-exports.websocketHandler = async (socket) => {
-    socket.on("new-message", (data) => {
-      console.log(`User received: ${data}`);
+const websocketHandler = async (socket) => {
+    // register mechanics
+    socket.on("register:mechanics", (mechanicId) => {
+        connectedMechanics.set(mechanicId, socket.id);
+        console.log(`Mechanics connected to socket - ${mechanicId}`);
     });
 
-    socket.emit("server-broadcast", { message: "Hello there" })
+    // register drivers
+    socket.on("register:drivers", (driverId) => {
+        connectedDrivers.set(driverId, socket.id);
+        console.log(`Drivers connected to socket - ${driverId}`);
+    });
 
     socket.on("disconnect", () => {
-        console.error("User disconnected");
+        // disconnect mechanics
+        connectedMechanics.forEach((sid, mid) => {
+            if(sid === socket.id){
+                connectedMechanics.delete(mid);
+            }
+        })
+
+        // disconnect drivers
+        connectedDrivers.forEach((sid, mid) => {
+            if(sid === socket.id){
+                connectedDrivers.delete(mid);
+            }
+        })
+        
+        console.error(`User disconnected: ${socket.id}`);
     });
 };
+
+module.exports = { websocketHandler, connectedMechanics, connectedDrivers };
