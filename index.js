@@ -19,7 +19,7 @@ const mechanicServiceSubscriptionBalanceRoute = require("./components/routes/mec
 const paystackWebhookRoute = require("./components/routes/paystackWebhookRoute");
 const cashTransferRoute = require("./components/routes/cashTransferRoute");
 const requestConnection = require("./components/routes/requestConnectionRoute");
-const socketIo = require("socket.io");
+const commonServiceIssue = require("./components/routes/CommonServiceIssueRoute");
 const http = require("http")
 const { socketStarter } = require("./components/websocket/server")
 const dotenv = require("dotenv");
@@ -51,11 +51,11 @@ app.use(cors());
 app.use(cookieParser());
 
 // health check
-app.use((req, res) => {
-  res.status(200).json({
-    status: "ok"
-  })
-});
+// app.use((req, res) => {
+//   res.status(200).json({
+//     status: "ok"
+//   })
+// });
 
 // Use user routes
 app.use("/api", userRoutes);
@@ -74,6 +74,7 @@ app.use("/api", mechanicServiceSubscriptionBalanceRoute);
 app.use("/api", paystackWebhookRoute);
 app.use("/api", cashTransferRoute);
 app.use("/api", requestConnection);
+app.use("/api", commonServiceIssue);
 
 
 // default route
