@@ -1,8 +1,5 @@
 const { getIO } = require("../websocket/server");
-const {
-  connectedMechanics,
-  connectedDrivers,
-} = require("../websocket/websocketHandler");
+const { connectedMechanics, connectedDrivers, } = require("../websocket/websocketHandler");
 const ServiceBooking = require("../models/serviceBookingModel");
 const ServiceHistory = require("../models/serviceHistory");
 
@@ -36,18 +33,26 @@ exports.bookService = async (req, res) => {
     });
     await serviceBooking.save();
 
-    //send real-time data to mechanic
+    // display driver details
+    await serviceBooking.populate({
+        path: "driverId", 
+        select: "fullName",
+        populate: {
+            path: "profileImage",
+            select: "-_id image"
+        }
+    });
+
+    //send real-time notice to mechanic
     const mechanicSocketId = connectedMechanics.get(
       serviceBooking.mechanicId.toString(),
     );
-
     // socket connection
     const io = getIO();
-
     if (mechanicSocketId) {
       io.to(mechanicSocketId).emit("new:booking", {
         bookingId: serviceBooking._id,
-        driverId: serviceBooking.driverId,
+        driver: serviceBooking.driverId,
         vehicleInfo: serviceBooking.vehicleInfo,
         issue: serviceBooking.issue,
         date: serviceBooking.date,
@@ -90,7 +95,14 @@ exports.declineBookService = async (req, res) => {
         bookingStatus: "declined",
       },
       { new: true },
-    );
+    ).populate({
+      path: "mechanicId",
+      select: "fullName",
+      populate: {
+        path: "profileImage",
+        select: "-_id image",
+      },
+    });
 
     // notify driver
     const driverSocketId = connectedDrivers.get(
@@ -100,7 +112,7 @@ exports.declineBookService = async (req, res) => {
     if (driverSocketId) {
       io.to(driverSocketId).emit("declined:booking", {
         bookingId: serviceBooking._id,
-        mechanicId: serviceBooking.mechanicId,
+        mechanic: serviceBooking.mechanicId,
         message: "Your booking has been declined.",
         reason: `${reason || "No reason provided."}`,
       });
@@ -142,7 +154,14 @@ exports.acceptBookService = async (req, res) => {
         bookingStatus: "accepted",
       },
       { new: true },
-    );
+    ).populate({
+      path: "mechanicId",
+      select: "fullName",
+      populate: {
+        path: "profileImage",
+        select: "-_id image",
+      },
+    });
 
     // notify driver
     const driverSocketId = connectedDrivers.get(
@@ -152,7 +171,7 @@ exports.acceptBookService = async (req, res) => {
     if (driverSocketId) {
       io.to(driverSocketId).emit("accepted:booking", {
         bookingId: serviceBooking._id,
-        mechanicId: serviceBooking.mechanicId,
+        mechanic: serviceBooking.mechanicId,
         message: "Your booking has been accepted.",
       });
     }
@@ -191,7 +210,14 @@ exports.cancelBookService = async (req, res) => {
         bookingStatus: "cancelled",
       },
       { new: true },
-    );
+    ).populate({
+      path: "mechanicId",
+      select: "fullName",
+      populate: {
+        path: "profileImage",
+        select: "-_id image",
+      },
+    });;
 
     //collect data to history
     const serviceHistory = new ServiceHistory({
@@ -212,7 +238,7 @@ exports.cancelBookService = async (req, res) => {
     if (driverSocketId) {
       io.to(driverSocketId).emit("cancelled:booking", {
         bookingId: serviceBooking._id,
-        mechanicId: serviceBooking.mechanicId,
+        mechanic: serviceBooking.mechanicId,
         message: "Your booking has been cancelled.",
         reason: `${reason || "No reason provided."}`,
       });
@@ -252,7 +278,14 @@ exports.driverCancelBookService = async (req, res) => {
         bookingStatus: "cancelled",
       },
       { new: true },
-    );
+    ).populate({
+      path: "driverId",
+      select: "fullName",
+      populate: {
+        path: "profileImage",
+        select: "-_id image",
+      },
+    });;
 
     //collect data to history
     const serviceHistory = new ServiceHistory({
@@ -273,7 +306,7 @@ exports.driverCancelBookService = async (req, res) => {
     if (mechanicSocketId) {
       io.to(mechanicSocketId).emit("driver-cancelled:booking", {
         bookingId: serviceBooking._id,
-        driverId: serviceBooking.driverId,
+        driver: serviceBooking.driverId,
         message: "Your customer cancelled the booking.",
         reason: `${reason || "No reason provided."}`,
       });
@@ -313,7 +346,14 @@ exports.completeBookService = async (req, res) => {
         bookingStatus: "completed",
       },
       { new: true },
-    );
+    ).populate({
+      path: "mechanicId",
+      select: "fullName",
+      populate: {
+        path: "profileImage",
+        select: "-_id image",
+      },
+    });
 
     //collect data to history
     const serviceHistory = new ServiceHistory({
@@ -334,7 +374,7 @@ exports.completeBookService = async (req, res) => {
     if (driverSocketId) {
       io.to(driverSocketId).emit("completed:booking", {
         bookingId: serviceBooking._id,
-        mechanicId: serviceBooking.mechanicId,
+        mechanic: serviceBooking.mechanicId,
         message: "Your booking has been completed.",
       });
     }
