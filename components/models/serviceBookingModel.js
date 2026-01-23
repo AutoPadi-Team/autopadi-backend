@@ -27,11 +27,11 @@ const serviceBookingSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    Date: {
+    date: {
       type: Date,
       required: true,
     },
-    Time: {
+    time: {
       type: Date,
       required: true,
     },
@@ -50,8 +50,8 @@ const serviceBookingSchema = new mongoose.Schema(
     },
     bookingStatus: {
       type: String,
-      enum: ["pending", "accepted", "declined", "completed", "cancelled"],
-      default: "pending"
+      enum: ["pending", "declined", "accepted", "cancelled", "completed"],
+      default: "pending",
     },
   },
   {

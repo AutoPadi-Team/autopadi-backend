@@ -11,18 +11,16 @@ exports.socketStarter = (server) => {
     });
 
     io.on("connection", (socket)=> {
-        console.log(`User connected: ${socket.id}`);
+        console.error(`User connected: ${socket.id}`);
         websocketHandler(socket); // Send response to handler
     });
-
     return io;
 };
 
 // Send responses to client
 exports.getIO = () => {
     if(!io){
-        console.error("Socket not connected");
+        throw new Error("Socket not connected");
     }
-
     return io;
 }

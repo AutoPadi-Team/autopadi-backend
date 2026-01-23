@@ -29,7 +29,6 @@ const websocketHandler = async (socket) => {
                 connectedDrivers.delete(mid);
             }
         })
-        
         console.error(`User disconnected: ${socket.id}`);
     });
 };

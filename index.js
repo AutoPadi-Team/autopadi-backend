@@ -20,6 +20,7 @@ const paystackWebhookRoute = require("./components/routes/paystackWebhookRoute")
 const cashTransferRoute = require("./components/routes/cashTransferRoute");
 const requestConnection = require("./components/routes/requestConnectionRoute");
 const commonServiceIssue = require("./components/routes/CommonServiceIssueRoute");
+const serviceBookingRoute = require("./components/routes/serviceBookingRoute");
 const http = require("http")
 const { socketStarter } = require("./components/websocket/server")
 const dotenv = require("dotenv");
@@ -75,6 +76,7 @@ app.use("/api", paystackWebhookRoute);
 app.use("/api", cashTransferRoute);
 app.use("/api", requestConnection);
 app.use("/api", commonServiceIssue);
+app.use("/api", serviceBookingRoute);
 
 
 // default route
