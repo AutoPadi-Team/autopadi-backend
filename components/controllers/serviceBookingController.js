@@ -6,17 +6,17 @@ const ServiceHistory = require("../models/serviceHistory");
 // driver books service
 exports.bookService = async (req, res) => {
   try {
-    const { driverId, mechanicId, vehicleInfo, issue, date, time, location } =
+    const { driverId, mechanicId, vehicleInfo, issue, date, location } =
       req.body;
     // check if the there already pending booking
     const existingBooking = await ServiceBooking.findOne({
       $and: [{ driverId }, { mechanicId }],
-      bookingStatus: "pending",
+      bookingStatus: { $in: ["pending", "accepted"]},
     });
     if (existingBooking) {
       return res.status(404).json({
         success: false,
-        message: "There is booking pending.",
+        message: `Your service booked is ${existingBooking.bookingStatus}.`,
       });
     }
 
@@ -27,7 +27,6 @@ exports.bookService = async (req, res) => {
       vehicleInfo,
       issue,
       date,
-      time,
       location,
       bookingStatus: "pending",
     });
@@ -56,7 +55,6 @@ exports.bookService = async (req, res) => {
         vehicleInfo: serviceBooking.vehicleInfo,
         issue: serviceBooking.issue,
         date: serviceBooking.date,
-        time: serviceBooking.time,
         location: serviceBooking.location,
       });
     }

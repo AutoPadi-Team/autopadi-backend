@@ -14,6 +14,7 @@ const brandServiceListRoute = require("./components/routes/brandServiceListRoute
 const locationRoute = require("./components/routes/locationRoute");
 const servicePlanSubscriptionRoute = require("./components/routes/ServicePlanSubscriptionRoute");
 const ServiceSubscriptionReminders = require("./components/reminders/ServiceSubscriptionReminders");
+const ServiceBookingReminders = require("./components/reminders/ServiceBookingReminders");
 const servicePlanPaymentRoute = require("./components/routes/servicePlanPaymentRoute");
 const mechanicServiceSubscriptionBalanceRoute = require("./components/routes/mechanicSubscriptionBalanceRoute");
 const paystackWebhookRoute = require("./components/routes/paystackWebhookRoute");
@@ -21,6 +22,7 @@ const cashTransferRoute = require("./components/routes/cashTransferRoute");
 const requestConnection = require("./components/routes/requestConnectionRoute");
 const commonServiceIssue = require("./components/routes/CommonServiceIssueRoute");
 const serviceBookingRoute = require("./components/routes/serviceBookingRoute");
+const { swaggerUi, specs } = require("./components/swaggerConfig/swagger");
 const http = require("http")
 const { socketStarter } = require("./components/websocket/server")
 const dotenv = require("dotenv");
@@ -31,6 +33,9 @@ connectDB();
 
 // Initialize service subscription reminders
 ServiceSubscriptionReminders();
+
+// Initialize service booking reminders
+ServiceBookingReminders();
 
 
 const app = express();
@@ -51,12 +56,8 @@ socketStarter(server); // Start socket server
 app.use(cors());
 app.use(cookieParser());
 
-// health check
-// app.use((req, res) => {
-//   res.status(200).json({
-//     status: "ok"
-//   })
-// });
+// Swagger API documentation
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 // Use user routes
 app.use("/api", userRoutes);
