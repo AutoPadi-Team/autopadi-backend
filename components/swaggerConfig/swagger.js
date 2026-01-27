@@ -11,11 +11,27 @@ const options = {
     },
     servers: [
       {
-        url: "https://api.autopadi.org", // change to Render/production URL
+        // url: "https://api.autopadi.org",
+        url: "http://localhost:5001",
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+
+    security: [
+      {
+        bearerAuth: [],
       },
     ],
   },
-  apis: ["./routes/*.js"], // path to your route files
+  apis: ["./components/routes/*.js"], // path to your route files
 };
 
 const specs = swaggerJsdoc(options);
