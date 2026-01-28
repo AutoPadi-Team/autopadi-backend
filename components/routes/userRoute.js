@@ -117,11 +117,7 @@ router.post("/verify-email", verifyEmail);
  *       200:
  *         description: Verification code resent
  */
-router.post(
-  "/resend-verification-code/:email",
-  verifyToken,
-  resendVerificationCode,
-);
+router.post("/resend-verification-code/:email", verifyToken, resendVerificationCode);
 
 /**
  * @swagger

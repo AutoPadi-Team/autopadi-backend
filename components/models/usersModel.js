@@ -25,7 +25,7 @@ const usersSchema = new mongoose.Schema(
       type: String,
     },
     location: {
-      lot: {
+      lon: {
         type: Number,
       },
       lat: {
@@ -72,6 +72,9 @@ const usersSchema = new mongoose.Schema(
     connectorsCount: { type: Number, default: 0 },
     connected: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     connectedCount: { type: Number, default: 0 },
+    h3Index: {
+      type: String,
+    },
   },
   {
     timestamps: true,

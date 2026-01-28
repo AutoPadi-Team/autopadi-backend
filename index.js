@@ -79,7 +79,6 @@ app.use("/api", requestConnection);
 app.use("/api", commonServiceIssue);
 app.use("/api", serviceBookingRoute);
 
-
 // default route
 app.get("/", (req, res) => {
   res.json({ message: "AutoPadi server running successfully.." });

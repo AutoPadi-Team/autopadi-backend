@@ -1,119 +1,156 @@
 const User = require("../models/usersModel");
+const h3 = require("h3-js");
 
-// get all available mechanics locations
+// const nearbyH3Indexes = h3.gridDisk(driverH3Index, 2);
+// log(`Near by locations: ${nearbyH3Indexes}`);
+
+// const stepDistanceH3 = h3.gridDistance(driverH3Index, mechanicH3Index);
+// log(`Step Distance: ${stepDistanceH3}`);
+
+// const metersDistance = stepDistanceH3 * 650; // approx. meters per hex at res 8
+// log(`Approx. Distance in Meters: ${metersDistance}`);
+
+// const speedMinutes = 16.67 * 30; // avg speed in meters per minute * 30 minutes
+// log(`Speed in Meters per 30 minutes: ${speedMinutes}`);
+
+// const estimatedTimeMinutes = Math.floor(metersDistance / speedMinutes);
+// log(`Estimated Time in Minutes: ${estimatedTimeMinutes.toFixed(2)}`);
+
+// get near by available mechanics locations
 exports.getAllMechanicsLocations = async (req, res) => {
-    try {
-        const mechanics = await User.find({
-          role: "mechanic",
-          availability: true,
-        })
-          .select("location availability availabilityTime fullName phoneNumber profileImage businessDetails")
-          .populate("businessDetails", "mechanicType businessName")
-          .populate("profileImage", "image");
+  try {
+    const { lat, lon } = req.query;
 
-        res.status(200).json({
-            success: true,
-            message: "Mechanics locations retrieved successfully",
-            mechanics,
-        });
-        
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: `Internal server error: ${error.message}`,
-        })
-    }
+    // convert driver location to H3 index at resolution 8
+    const driverH3Index = h3.latLngToCell(parseFloat(lat), parseFloat(lon), 8);
+    // Get nearby H3 indexes within a certain radius 2 hex cells
+    const nearbyH3Indexes = h3.gridDisk(driverH3Index, 2);
+
+    const mechanics = await User.find({
+      h3Index: { $in: nearbyH3Indexes },
+      role: "mechanic",
+      availability: true,
+    })
+      .select(
+        "fullName phoneNumber location availability availabilityTime h3Index",
+      )
+      .populate("profileImage", "image")
+      .limit(5);
+
+    //fetch mechanics only h3 indexes
+    const mechanicsH3Indexes = mechanics.map((mechanic) => mechanic.h3Index);
+    // calculate step hex distance from driver to each mechanic
+    const stepDistanceH3 = mechanicsH3Indexes.map((mechH3Index) => {
+      return h3.gridDistance(driverH3Index, mechH3Index);
+    });
+    // calculate approx. meters distance per hex at res 8
+    const metersDistances = stepDistanceH3.map((step) => step * 650);
+    // calculate estimated time in minutes assuming avg speed of 16.67 m/min (1 km in 60 mins)
+    const speedMinutes = 16.67 * 30;
+    // calculate estimated time in minutes for each mechanic
+    const estimatedTimes = metersDistances.map((meters) =>
+      Math.floor(parseFloat(meters) / parseFloat(speedMinutes)),
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Mechanics locations retrieved successfully",
+      mechanics,
+      etaMinutes: estimatedTimes,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: `Internal server error: ${error.message}`,
+    });
+  }
 };
 
 exports.getMechanicAvailabilityStatusAndTime = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const user = await User.findById(id);
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
 
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: "Mechanic not found",
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Mechanic availability status and time retrieved successfully",
-            availability: user.availability,
-            availabilityTime: user.availabilityTime,
-        });
-
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: `Internal server error: ${error.message}`,
-        });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Mechanic not found",
+      });
     }
+
+    res.status(200).json({
+      success: true,
+      message: "Mechanic availability status and time retrieved successfully",
+      availability: user.availability,
+      availabilityTime: user.availabilityTime,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: `Internal server error: ${error.message}`,
+    });
+  }
 };
 
-// update mechanic availability status and time
+// update mechanic availability status
 exports.updateAvailability = async (req, res) => {
-    const { availability } = req.body;
-    const userId = req.params.id;
+  const { availability } = req.body;
+  const userId = req.params.id;
 
-    try {
-        // Find user by ID and update availability
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { availability },
-            { new: true }
-        );
+  try {
+    // Find user by ID and update availability
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { availability },
+      { new: true },
+    );
 
-        if (!updatedUser) {
-            return res.status(404).json({
-                success: false,
-                message: "Mechanic not found",
-            });
-        }
-
-        res.status(200).json({
-          success: true,
-          message: "Availability updated successfully",
-          availability: updatedUser,
-        });
-        
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: `Internal server error: ${error.message}`,
-        });
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "Mechanic not found",
+      });
     }
-}
+
+    res.status(200).json({
+      success: true,
+      message: "Availability updated successfully",
+      availability: updatedUser,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: `Internal server error: ${error.message}`,
+    });
+  }
+};
 
 // update mechanic availability time
 exports.updateAvailabilityTime = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { from, to } = req.body;
+  try {
+    const { id } = req.params;
+    const { from, to } = req.body;
 
-        const updatedUser = await User.findByIdAndUpdate(
-            id,
-            { availabilityTime: { from, to } },
-            { new: true }
-        );
-        if (!updatedUser) {
-            return res.status(404).json({
-                success: false,
-                message: "Mechanic not found",
-            });
-        }
-        res.status(200).json({
-          success: true,
-          message: "Availability time updated successfully",
-          availabilityTime: updatedUser,
-        });
-
-        
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: `Internal server error: ${error.message}`,
-        });
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { availabilityTime: { from, to } },
+      { new: true },
+    );
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "Mechanic not found",
+      });
     }
+    res.status(200).json({
+      success: true,
+      message: "Availability time updated successfully",
+      availabilityTime: updatedUser,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: `Internal server error: ${error.message}`,
+    });
+  }
 };

@@ -50,7 +50,7 @@ router.post("/book-service", verifyToken, bookService); // book new service
  * @swagger
  * /api/book-service:
  *   put:
- *     summary:Decline a service
+ *     summary: Decline a service
  *     tags: [Service Bookings]
  *     requestBody:
  *       required: true
@@ -104,11 +104,7 @@ router.put("/cancel-booking/:id", verifyToken, cancelBookService); // cancel boo
 router.put("/driver-cancel-booking/:id", verifyToken, driverCancelBookService); // cancel booking service
 router.put("/complete-booking/:id", verifyToken, completeBookService); // complete booking service
 router.get("/fetch-driver-bookings/:driverId", verifyToken, getDriverBooking); // get driver booking service
-router.get(
-  "/fetch-mechanic-bookings/:mechanicId",
-  verifyToken,
-  getMechanicBooking,
-); // get mechanic booking service
+router.get("/fetch-mechanic-bookings/:mechanicId", verifyToken, getMechanicBooking,); // get mechanic booking service
 router.get("/fetch-all-bookings", verifyToken, getAllBooking); // get mechanic booking service
 
 module.exports = router;
