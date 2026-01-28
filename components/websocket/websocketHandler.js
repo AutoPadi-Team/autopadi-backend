@@ -34,7 +34,7 @@ const websocketHandler = async (socket) => {
       const user = await User.findByIdAndUpdate(
         mid,
         {
-          h3Index: "",
+          h3Index: null,
         },
         { new: true },
       );
