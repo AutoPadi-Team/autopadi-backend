@@ -22,6 +22,7 @@ const cashTransferRoute = require("./components/routes/cashTransferRoute");
 const requestConnection = require("./components/routes/requestConnectionRoute");
 const commonServiceIssue = require("./components/routes/CommonServiceIssueRoute");
 const serviceBookingRoute = require("./components/routes/serviceBookingRoute");
+const UrgentRequestRoute = require("./components/routes/urgentRequestRoute");
 const { swaggerUi, specs } = require("./components/swaggerConfig/swagger");
 const http = require("http")
 const { socketStarter } = require("./components/websocket/server")
@@ -78,6 +79,11 @@ app.use("/api", cashTransferRoute);
 app.use("/api", requestConnection);
 app.use("/api", commonServiceIssue);
 app.use("/api", serviceBookingRoute);
+app.use("/api", UrgentRequestRoute);
+
+// const h3 = require("h3-js");
+// console.log(`location: ${h3.cellToLatLng("8f75292dc1a055a")}`);
+
 
 // default route
 app.get("/", (req, res) => {

@@ -14,7 +14,7 @@ exports.connectDB = async () => {
     //   const done = await mongoose.connection.collection("users").updateMany(
     //     {},
     //     {
-    //       $set: { h3Index: nearbyH3Indexes[0] },
+    //       $set: { location: {lat: 0, lon: 0} },
     //     },
     //   );
     //   console.log(`Data: ${JSON.stringify(done, null, 2)}`);

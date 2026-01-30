@@ -1,23 +1,8 @@
 const User = require("../models/usersModel");
 const h3 = require("h3-js");
 
-// const nearbyH3Indexes = h3.gridDisk(driverH3Index, 2);
-// log(`Near by locations: ${nearbyH3Indexes}`);
-
-// const stepDistanceH3 = h3.gridDistance(driverH3Index, mechanicH3Index);
-// log(`Step Distance: ${stepDistanceH3}`);
-
-// const metersDistance = stepDistanceH3 * 650; // approx. meters per hex at res 8
-// log(`Approx. Distance in Meters: ${metersDistance}`);
-
-// const speedMinutes = 16.67 * 30; // avg speed in meters per minute * 30 minutes
-// log(`Speed in Meters per 30 minutes: ${speedMinutes}`);
-
-// const estimatedTimeMinutes = Math.floor(metersDistance / speedMinutes);
-// log(`Estimated Time in Minutes: ${estimatedTimeMinutes.toFixed(2)}`);
-
 // get near by available mechanics locations
-exports.getAllMechanicsLocations = async (req, res) => {
+exports.getAllNearbyMechanicsLocations = async (req, res) => {
   try {
     const { lat, lon } = req.query;
 
@@ -32,9 +17,10 @@ exports.getAllMechanicsLocations = async (req, res) => {
       availability: true,
     })
       .select(
-        "fullName phoneNumber location availability availabilityTime h3Index",
+        "fullName phoneNumber location availability availabilityTime rating h3Index",
       )
       .populate("profileImage", "image")
+      .sort({ rating: -1 })
       .limit(5);
 
     //fetch mechanics only h3 indexes

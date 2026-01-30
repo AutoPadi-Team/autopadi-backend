@@ -1,10 +1,8 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/usersModel");
-const {
-  generateToken,
-  generateRefreshToken,
-} = require("../middleware/authenticate");
+const h3 = require("h3-js");
+const { generateToken, generateRefreshToken } = require("../middleware/authenticate");
 const { sendMail } = require("../mailer/sendMail");
 const verificationCode = require("../models/verificationCode");
 const userProfile = require("../models/userProfile");
@@ -50,6 +48,8 @@ exports.register = async (req, res) => {
       phoneNumber,
       rating: 3,
       password: hashedPassword,
+      location: { lat: 0, lon: 0 },
+      h3Index: h3.latLngToCell(0, 0, 8),
     });
     const savedUser = await user.save();
 
@@ -449,7 +449,21 @@ exports.userLocation = async (req, res) => {
     const { id } = req.params;
     const { location } = req.body;
 
-    const user = await User.findByIdAndUpdate(id, { location }, { new: true });
+    const { lat, lon } = location;
+    if (!lat || !lon) {
+      return res.status(400).json({
+        success: false,
+        message: "please provide valid location coordinates",
+      });
+    };
+
+    const user = await User.findByIdAndUpdate(id, 
+      { 
+        location, 
+        h3Index: h3.latLngToCell(lat, lon, 8),
+      }, 
+      { new: true }
+    );
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -463,6 +477,7 @@ exports.userLocation = async (req, res) => {
       user: {
         fullName: user.fullName,
         location: user.location,
+        h3Index: user.h3Index,
       },
     });
   } catch (error) {

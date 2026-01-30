@@ -259,7 +259,6 @@ exports.cancelBookService = async (req, res) => {
 exports.driverCancelBookService = async (req, res) => {
   try {
     const { id } = req.params;
-    const { reason } = req.body;
 
     // check if booking exist
     const existingBooking = await ServiceBooking.findById(id);
@@ -290,7 +289,6 @@ exports.driverCancelBookService = async (req, res) => {
       mechanicId: serviceBooking.mechanicId,
       driverId: serviceBooking.driverId,
       issue: serviceBooking.issue,
-      reason: reason,
       serviceStatus: serviceBooking.bookingStatus,
     });
     await serviceHistory.save();
@@ -460,8 +458,8 @@ exports.getAllBooking = async (req, res) => {
         path:"mechanicId", 
         select: "_id",
         populate: {
-            path: "businessDetails",
-            select: "-_id picture businessName businessPhoneNumber businessEmail"
+            path: "profileImage",
+            select: "-_id image"
         }
     });
 

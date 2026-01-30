@@ -27,10 +27,6 @@ const urgentRequestSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    date: {
-      type: Date,
-      required: true,
-    },
     location: {
       addressName: {
         type: String,
@@ -46,7 +42,7 @@ const urgentRequestSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "accepted", "declined", "cancelled", "completed"],
+      enum: ["pending", "accepted", "ongoing", "declined", "cancelled", "completed"],
       default: "pending",
     },
   },
