@@ -279,7 +279,7 @@ exports.getConnectedMechanics = async (req, res) => {
     const { driverId } = req.params;
     const driver = await User.findById(driverId).populate({
       path: "connected",
-      select: "_id fullName role",
+      select: "_id fullName role location",
       populate: [
         {
           path: "businessDetails",
