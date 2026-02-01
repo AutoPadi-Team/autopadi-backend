@@ -7,7 +7,9 @@ const connectedDrivers = new Map(); // store driver socket id
 const websocketHandler = async (socket) => {
   // register mechanics
   socket.on("register:mechanics", async ({ mechanicId, lat, lon }) => {
+    // store mechanic socket id
     connectedMechanics.set(mechanicId, socket.id);
+    // update mechanic h3 index
     const user = await User.findByIdAndUpdate(
       mechanicId,
       {
@@ -27,6 +29,7 @@ const websocketHandler = async (socket) => {
   // register drivers
   socket.on("register:drivers", async ({ driverId, lat, lon }) => {
     connectedDrivers.set(driverId, socket.id);
+    // update driver h3 index
     const user = await User.findByIdAndUpdate(
       driverId,
       {
@@ -47,6 +50,7 @@ const websocketHandler = async (socket) => {
   socket.on("update:mechanic-location", async ({ mechanicId, lat, lon, activeRequestId }) => {
     try {
       connectedMechanics.set(mechanicId, socket.id);
+      // update mechanic location
       const user = await User.findByIdAndUpdate(
         mechanicId,
         {
@@ -92,7 +96,9 @@ const websocketHandler = async (socket) => {
   // update driver location every seconds
   socket.on("update:driver-location", async ({ driverId, lat, lon, activeRequestId }) => {
     try {
+      // store driver socket id
       connectedDrivers.set(driverId, socket.id);
+      // update driver location
       const user = await User.findByIdAndUpdate(
         driverId,
         {
