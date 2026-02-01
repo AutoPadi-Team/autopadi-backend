@@ -401,7 +401,7 @@ exports.getMechanicBooking = async (req, res) => {
           path: "profileImage",
           select: "-_id image",
         },
-      })
+      }).sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -420,14 +420,16 @@ exports.getMechanicBooking = async (req, res) => {
 exports.getDriverBooking = async (req, res) => {
   try {
     const { driverId } = req.params;
-    const serviceBooking = await ServiceBooking.find({ driverId }).populate({
-      path: "mechanicId",
-      select: "_id",
-      populate: {
-        path: "businessDetails",
-        select: "-_id picture businessName businessPhoneNumber businessEmail",
-      },
-    });;
+    const serviceBooking = await ServiceBooking.find({ driverId })
+      .populate({
+        path: "mechanicId",
+        select: "_id",
+        populate: {
+          path: "businessDetails",
+          select: "-_id picture businessName businessPhoneNumber businessEmail",
+        },
+      })
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -445,23 +447,25 @@ exports.getDriverBooking = async (req, res) => {
 // get all bookings
 exports.getAllBooking = async (req, res) => {
   try {
-    const serviceBooking = await ServiceBooking.find().sort({ createdAt: -1 })
-    .populate({
-        path: "driverId", 
+    const serviceBooking = await ServiceBooking.find()
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "driverId",
         select: "fullName phoneNumber email",
         populate: {
-            path: "profileImage",
-            select: "-_id image"
-        }
-    })
-    .populate({
-        path:"mechanicId", 
+          path: "profileImage",
+          select: "-_id image",
+        },
+      })
+      .populate({
+        path: "mechanicId",
         select: "_id",
         populate: {
-            path: "profileImage",
-            select: "-_id image"
-        }
-    });
+          path: "profileImage",
+          select: "-_id image",
+        },
+      })
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,

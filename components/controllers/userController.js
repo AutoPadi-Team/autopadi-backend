@@ -460,7 +460,7 @@ exports.userLocation = async (req, res) => {
     const user = await User.findByIdAndUpdate(id, 
       { 
         location, 
-        h3Index: h3.latLngToCell(lat, lon, 8),
+        h3Index: h3.latLngToCell(lat, lon, 8), // add h3 index for nearby location
       }, 
       { new: true }
     );
