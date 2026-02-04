@@ -91,11 +91,6 @@ exports.renewSubscription = async (req, res) => {
       if (!subscription) {
         return res.status(404).json({ message: "Subscription not found" });
       }
-      if (subscription.subscriptionStatus === false) {
-        return res
-          .status(404)
-          .json({ message: "Cannot renew a cancelled subscription" });
-      }
 
       // Check for existing driver
       const driver = await User.findById(subscription.driverId);
