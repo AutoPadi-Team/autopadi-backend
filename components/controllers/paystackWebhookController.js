@@ -109,6 +109,7 @@ exports.paystackWebhook = async (req, res) => {
         const newEndDate = new Date(
           subscription.endDate.getTime() + 30 * 24 * 60 * 60 * 1000
         ); // Extend by 30 days
+        subscription.startDate = new Date(Date.now());
         subscription.endDate = newEndDate;
         subscription.subscriptionStatus = true;
         subscription.maintenanceTask = "pending";
