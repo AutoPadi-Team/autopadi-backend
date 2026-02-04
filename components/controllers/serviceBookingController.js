@@ -259,6 +259,7 @@ exports.cancelBookService = async (req, res) => {
 exports.driverCancelBookService = async (req, res) => {
   try {
     const { id } = req.params;
+    const { reason } = req.body;
 
     // check if booking exist
     const existingBooking = await ServiceBooking.findById(id);
