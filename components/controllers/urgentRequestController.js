@@ -19,16 +19,15 @@ exports.createUrgentRequest = async (req, res) => {
       });
     }
 
-    // check for existing pending or ongoing request between driver and mechanic
+    // check for existing pending or ongoing request for a mechanic
     const existingRequest = await UrgentRequest.findOne({
-      driverId,
       mechanicId,
       status: { $in: ["pending", "ongoing", "accepted"] },
     });
     if (existingRequest) {
       return res.status(400).json({
         success: false,
-        message: "You have an existing urgent request with this mechanic.",
+        message: "The mechanic have an existing urgent request.",
       });
     }
 

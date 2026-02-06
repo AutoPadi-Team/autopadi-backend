@@ -13,6 +13,7 @@
   "author": "Buertey Accam <111708279+george-accam@users.noreply.github.com>",
   "license": "MIT",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.984.0",
     "axios": "^1.11.0",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.7.0",

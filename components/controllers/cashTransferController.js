@@ -31,7 +31,7 @@ exports.getMobileMoneyList = async (req, res) => {
 // Create transfer recipient
 exports.createTransferReceipt = async (req, res) => {
   try {
-    const { name, accountNumber, bankCode } = req.body;
+    const { name, accountNumber, bankCode, userId } = req.body;
     const response = await api.post("transferrecipient", {
       type: "mobile_money",
       name: name,
@@ -53,6 +53,7 @@ exports.createTransferReceipt = async (req, res) => {
         .json({ success: true, message: "recipient already exist" });
     // Save recipient to database
     const newRecipient = new Recipient({
+      userId,
       recipientCode: data.recipient_code,
       name: data.name,
       accountNumber: data.details.account_number,
@@ -71,6 +72,46 @@ exports.createTransferReceipt = async (req, res) => {
       message: `Internal server error: ${error.message}`,
     });
   }
+};
+
+// get the recipient details by organizer id
+exports.getRecipientById = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const transferRecipient = await Recipient.findOne({ userId });
+        
+        res.status(200).json({
+            success: true,
+            message: "recipient retrieved",
+            recipient: transferRecipient
+        })
+        
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: `Internal server error: ${error.message}`
+        })
+    }
+};
+
+// get all recipients
+exports.getRecipients = async (req, res) => {
+    try {
+        const transferRecipient = await Recipient.find();
+        
+        res.status(200).json({
+            success: true,
+            message: "recipient retrieved",
+            recipient: transferRecipient
+        })
+        
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: `Internal server error: ${error.message}`
+        })
+    }
 };
 
 // Send money to recipient
