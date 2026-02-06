@@ -52,6 +52,7 @@ exports.getAllNearbyMechanicsLocations = async (req, res) => {
   }
 };
 
+// get mechanic available status and time
 exports.getMechanicAvailabilityStatusAndTime = async (req, res) => {
   try {
     const { id } = req.params;

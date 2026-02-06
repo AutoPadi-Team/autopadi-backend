@@ -445,6 +445,43 @@ exports.completeUrgentRequest = async (req, res) => {
 //   }
 // };
 
+// get requests by id
+exports.getRequestById = async (req, res) => {
+  try {
+    const { id } = req.params; 
+
+    const urgentRequest = await UrgentRequest.findById(id)
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "driverId",
+        select: "fullName phoneNumber email",
+        populate: {
+          path: "profileImage",
+          select: "-_id image",
+        },
+      })
+      .populate({
+        path: "mechanicId",
+        select: "_id",
+        populate: {
+          path: "profileImage",
+          select: "-_id image",
+        },
+      });
+
+    res.status(200).json({
+      success: true,
+      message: "Requests fetched successfully.",
+      urgentRequest,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: `Internal server error: ${error.message}`,
+    });
+  }
+};
+
 // get all requests (admin)
 exports.getAllRequest = async (req, res) => {
   try {
