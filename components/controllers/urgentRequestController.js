@@ -27,7 +27,7 @@ exports.createUrgentRequest = async (req, res) => {
     if (existingRequest) {
       return res.status(400).json({
         success: false,
-        message: "The mechanic have an existing urgent request.",
+        message: "This mechanic have an existing urgent request.",
       });
     }
 
