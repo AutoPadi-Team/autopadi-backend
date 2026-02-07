@@ -394,56 +394,56 @@ exports.completeUrgentRequest = async (req, res) => {
 };
 
 // get mechanic request
-// exports.getMechanicRequest = async (req, res) => {
-//   try {
-//     const { mechanicId } = req.params;
-//     const urgentRequest = await UrgentRequest.find({ mechanicId }).populate({
-//       path: "driverId",
-//       select: "fullName phoneNumber email",
-//       populate: {
-//         path: "profileImage",
-//         select: "-_id image",
-//       },
-//     });
+exports.getMechanicRequest = async (req, res) => {
+  try {
+    const { mechanicId } = req.params;
+    const urgentRequest = await UrgentRequest.find({ mechanicId }).populate({
+      path: "driverId",
+      select: "fullName phoneNumber email",
+      populate: {
+        path: "profileImage",
+        select: "-_id image",
+      },
+    });
 
-//     res.status(200).json({
-//       success: true,
-//       message: "Mechanic urgent requests fetched successfully.",
-//       urgentRequest,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       message: `Internal server error: ${error.message}`,
-//     });
-//   }
-// };
+    res.status(200).json({
+      success: true,
+      message: "Mechanic urgent requests fetched successfully.",
+      urgentRequest,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: `Internal server error: ${error.message}`,
+    });
+  }
+};
 
-// get driver bookings
-// exports.getDriverBooking = async (req, res) => {
-//   try {
-//     const { driverId } = req.params;
-//     const serviceBooking = await ServiceBooking.find({ driverId }).populate({
-//       path: "mechanicId",
-//       select: "_id",
-//       populate: {
-//         path: "businessDetails",
-//         select: "-_id picture businessName businessPhoneNumber businessEmail",
-//       },
-//     });
+// get driver request
+exports.getDriverRequest = async (req, res) => {
+  try {
+    const { driverId } = req.params;
+    const serviceBooking = await UrgentRequest.find({ driverId }).populate({
+      path: "mechanicId",
+      select: "_id",
+      populate: {
+        path: "businessDetails",
+        select: "-_id picture businessName businessPhoneNumber businessEmail",
+      },
+    });
 
-//     res.status(200).json({
-//       success: true,
-//       message: "Driver bookings fetched successfully.",
-//       serviceBooking,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       message: `Internal server error: ${error.message}`,
-//     });
-//   }
-// };
+    res.status(200).json({
+      success: true,
+      message: "Driver bookings fetched successfully.",
+      serviceBooking,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: `Internal server error: ${error.message}`,
+    });
+  }
+};
 
 // get requests by id
 exports.getRequestById = async (req, res) => {

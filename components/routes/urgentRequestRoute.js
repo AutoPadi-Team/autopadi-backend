@@ -6,6 +6,8 @@ const {
   driverCancelUrgentRequest,
   completeUrgentRequest,
   getRequestById,
+  getDriverRequest,
+  getMechanicRequest,
   getAllRequest,
 } = require("../controllers/urgentRequestController");
 const { verifyToken } = require("../middleware/authenticate");
@@ -19,6 +21,8 @@ router.put("/cancel-request/:id", verifyToken, cancelUrgentRequest);  // mechani
 router.put("/driver-cancel-request/:id", verifyToken, driverCancelUrgentRequest);  // driver cancels urgent request
 router.put("/complete-request/:id", verifyToken, completeUrgentRequest);  // driver completes urgent request
 router.get("/request/:id", verifyToken, getRequestById) // get request by id
+router.get("/driver-request/:driverId", verifyToken, getDriverRequest); // get driver request
+router.get("/mechanic-request/:mechanicId", verifyToken, getMechanicRequest); // get mechanic request
 router.get("/all-requests", verifyToken, getAllRequest); // get all urgent requests
 
 module.exports = router;
