@@ -1,5 +1,6 @@
 const cron = require("node-cron");
 const ServicePlanSubscriptionModel = require("../models/ServicePlanSubscriptionModel");
+const User = require("../models/usersModel");
 const smsInfo = require("../smsSender/smsInfo");
 
 const ServiceSubscriptionReminders = async () => {
@@ -58,7 +59,44 @@ const ServiceSubscriptionReminders = async () => {
       }
     }
 
-    console.log(`Checked subscriptions at ${now.toISOString()}`);
+    // Update premium membership subscription to false for expired subscriptions
+    const deactivatedPremiumMember = await User.updateMany(
+      {
+        premiumMember: true,
+        premiumEndDate: { $lt: now },
+      },
+      {
+        $set: { premiumMember: false },
+      }
+    );
+    if (deactivatedPremiumMember.modifiedCount > 0) {
+      console.log(
+        `Deactivated ${deactivatedPremiumMember.modifiedCount} premium membership(s).`,
+      );
+    }
+
+    // fetch all active premium members
+    const activePremiumMembers = await User.find({
+      premiumMember: true
+    });
+
+    for (let premium of activePremiumMembers){
+      const daysLeft = Math.ceil((premium.premiumEndDate - now) / (1000 * 60 * 60 * 24));
+      
+      // Reminder for user membership expiry
+      if ([7, 3, 1].includes(daysLeft)) {
+        const firstName = premium.fullName.split(" ")[0];
+        const expiryText = daysLeft === 1 ? "tomorrow" : `in ${daysLeft} days`;
+        const message = `Dear ${firstName}, your premium membership with AutoPadi expires ${expiryText} (${premium.premiumEndDate.toDateString()}). Renew now with AutoPadi to avoid features cuts.`;
+        // Send sms
+        await smsInfo({
+          phoneNumber: premium.phoneNumber,
+          msg: message,
+        });
+        console.log(`Sent use reminder (${daysLeft} days left)`);
+      }
+    }
+      console.log(`Checked subscriptions at ${now.toISOString()}`);
   } catch (error) {
     console.error("Error in service subscription reminders:", error.message);
   }

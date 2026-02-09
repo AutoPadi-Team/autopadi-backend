@@ -1,8 +1,7 @@
 const ServicePlanPayment = require("../models/servicePlanPaymentModel");
-const User = require("../models/usersModel");
 
 
-// Get service plan payments for all users
+// Get service plan payments for all users (admin)
 exports.getAllServicePlanPayments = async (req, res) => {
   try {
     const payments = await ServicePlanPayment.find()

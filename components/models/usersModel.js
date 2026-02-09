@@ -52,6 +52,12 @@ const usersSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    premiumStartDate: {
+      type: Date
+    },
+    premiumEndDate: {
+      type: Date
+    },
     profileImage: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Profile",

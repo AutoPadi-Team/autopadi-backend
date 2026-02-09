@@ -23,6 +23,7 @@ const requestConnection = require("./components/routes/requestConnectionRoute");
 const commonServiceIssue = require("./components/routes/CommonServiceIssueRoute");
 const serviceBookingRoute = require("./components/routes/serviceBookingRoute");
 const UrgentRequestRoute = require("./components/routes/urgentRequestRoute");
+const premiumPayment = require("./components/routes/premiumPaymentRoute");
 const { swaggerUi, specs } = require("./components/swaggerConfig/swagger");
 const http = require("http")
 const { socketStarter } = require("./components/websocket/server")
@@ -80,6 +81,7 @@ app.use("/api", requestConnection);
 app.use("/api", commonServiceIssue);
 app.use("/api", serviceBookingRoute);
 app.use("/api", UrgentRequestRoute);
+app.use("/api", premiumPayment);
 
 // const h3 = require("h3-js");
 // console.log(`location: ${h3.cellToLatLng("8f75292dc1a055a")}`);

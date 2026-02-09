@@ -23,6 +23,10 @@ const adminPremiumPlanSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    isDiscount: {
+      type: Boolean,
+      default: false,
+    },
     promotionPriceYearly: {
       type: Number,
       default: 0,

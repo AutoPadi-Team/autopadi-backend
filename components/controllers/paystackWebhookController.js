@@ -3,6 +3,7 @@ const MechanicSubscriptionBalance = require("../models/mechanicSubscriptionBalan
 const ServicePlanSubscription = require("../models/ServicePlanSubscriptionModel");
 const ServicePlanPayment = require("../models/servicePlanPaymentModel");
 const CashTransfer = require("../models/recipientCashTransfer");
+const PremiumPayment = require("../models/premiumPaymentModel");
 const smsInfo = require("../smsSender/smsInfo");
 const crypto = require("crypto");
 const secret = process.env.PAYSTACK_SECRET_KEY;
@@ -18,6 +19,7 @@ exports.paystackWebhook = async (req, res) => {
     const event = req.body;
     // Deconstruct event data
     const { reference, amount, channel, metadata } = event.data;
+    const userId = metadata?.custom_fields.find(f => f.variable_name === "user_id")?.value;
     const driverId = metadata?.custom_fields.find(f => f.variable_name === "driver_id")?.value;
     const mechanicId = metadata?.custom_fields.find(f => f.variable_name === "mechanic_id")?.value;
     const packageId = metadata?.custom_fields.find(f => f.variable_name === "package_id")?.value;
@@ -29,7 +31,7 @@ exports.paystackWebhook = async (req, res) => {
     const moneyChannel = channel;
     
     // Log the received data for debugging
-    const paymentData = { driverId, mechanicId, packageId, subscriptionType, subscriptionAmount, paymentReference, moneyChannel, metadata, subscriptionId, paymentModel };
+    const paymentData = { driverId, mechanicId, packageId, subscriptionType, subscriptionAmount, paymentReference, moneyChannel, metadata, subscriptionId };
     console.log("✅ Received Paystack Webhook Event:", JSON.stringify(paymentData, null, 2));
 
     // Handle new service plan subscription payment
@@ -98,7 +100,7 @@ exports.paystackWebhook = async (req, res) => {
           msg: `Dear ${driver.fullName}, your subscription ${event.event}`,
         });
       }
-    }
+    };
 
     // Handle renew service plan subscription payment
     if (event.event.startsWith("charge.") && paymentModel === "renew-service-plan-subscription") {
@@ -155,7 +157,74 @@ exports.paystackWebhook = async (req, res) => {
         });
       }
 
+    };
+
+    // Handle premium member subscription
+    if (event.event === "charge.success" && paymentModel === "premium_member") {
+      const start = new Date(Date.now());
+      const stopDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year from now
+      // update user premium member state
+      const user = await User.findById(userId);
+      user.premiumMember = true;
+      user.premiumStartDate = start;
+      user.premiumEndDate = stopDate;
+      await user.save();
+
+      // record premium payment
+      const premiumPayment = new PremiumPayment({
+          userId,
+          reference,
+          premiumType: paymentModel,
+          amount: amount / 100 // convert to cedis
+      });
+      await premiumPayment.save();
+
+      // send user notice
+      const userFirstName = user.fullName.split(" ")[0];
+      await smsInfo({
+        phoneNumber: user.phoneNumber,
+        msg: `Dear ${userFirstName}, you've successfully become a premium member with AutoPadi.\nStart Date: ${user.premiumStartDate.toDateString()}\nEnd Date: ${user.premiumEndDate.toDateString()}`,
+      });
+
+      console.log(`user: ${user} - premium: ${premiumPayment}`);
     }
+
+    // Handle renew premium member subscription
+    if (event.event === "charge.success" && paymentModel === "renew_premium_member") {
+      // check if payment reference exist
+      const existingPremiumPayment = await PremiumPayment.findOne({
+        reference
+      })
+      if(existingPremiumPayment) res.sendStatus(200)
+
+      // update user renew premium member state
+      const start = new Date(Date.now());
+      const user = await User.findById(userId);
+      const stopDate = new Date(user.premiumEndDate.getTime() + 365 * 24 * 60 * 60 * 1000); // 1 year from expired date
+      
+      user.premiumMember = true;
+      user.premiumStartDate = start;
+      user.premiumEndDate = stopDate;
+      await user.save();
+
+      // record premium payment
+      const premiumPayment = new PremiumPayment({
+          userId,
+          reference,
+          amount: amount / 100 // convert to cedis
+      });
+      await premiumPayment.save();
+      console.log(`user: ${user} - premium: ${premiumPayment}`);
+
+      // send user notice
+      const userFirstName = user.fullName.split(" ")[0];
+      await smsInfo({
+        phoneNumber: user.phoneNumber,
+        msg: `Dear ${userFirstName}, you've successfully renewed premium membership with AutoPadi.\nStart Date: ${user.premiumStartDate.toDateString()}\nEnd Date: ${user.premiumEndDate.toDateString()}`,
+      });
+
+    }
+
 
     // Handle transfer  events
     if(event.event.startsWith("transfer.")) {
@@ -197,7 +266,7 @@ exports.paystackWebhook = async (req, res) => {
         );
         console.log(`↩️ Transfer reversed: ${event.event}`);
       }
-    }
+    };
 
     res.status(200).json({ message: "Webhook received successfully" });
   } catch (error) {
