@@ -425,7 +425,7 @@ exports.getDriverRequest = async (req, res) => {
     const { driverId } = req.params;
     const serviceBooking = await UrgentRequest.find({ driverId }).populate({
       path: "mechanicId",
-      select: "_id",
+      select: "fullName phoneNumber",
       populate: {
         path: "businessDetails",
         select: "-_id picture businessName businessPhoneNumber businessEmail",
@@ -462,7 +462,7 @@ exports.getRequestById = async (req, res) => {
       })
       .populate({
         path: "mechanicId",
-        select: "_id",
+        select: "fullName phoneNumber",
         populate: {
           path: "profileImage",
           select: "-_id image",
