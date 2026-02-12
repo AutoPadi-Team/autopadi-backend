@@ -15,6 +15,7 @@ exports.getAllNearbyMechanicsLocations = async (req, res) => {
       h3Index: { $in: nearbyH3Indexes },
       role: "mechanic",
       availability: true,
+      businessVerified: true,
     })
       .select(
         "fullName phoneNumber location availability availabilityTime rating h3Index",

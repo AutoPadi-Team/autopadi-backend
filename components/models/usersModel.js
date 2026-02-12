@@ -66,6 +66,10 @@ const usersSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "BusinessProfile",
     },
+    businessVerified: {
+      type: Boolean,
+      default: false,
+    },
     availability: {
       type: Boolean,
       default: false,

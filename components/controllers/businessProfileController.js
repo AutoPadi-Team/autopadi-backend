@@ -296,9 +296,16 @@ exports.verifyBusinessProfile = async (req, res) => {
       });
     };
 
+    // verify mechanic
     const verifiedBusinessProfile = await BusinessProfile.findOneAndUpdate(
       { mechanicId },
       { verified: true, rating: 3 },
+      { new: true }
+    );
+
+    // update mechanic business verified
+    const mechanic = await User.findByIdAndUpdate(mechanicId,
+      { businessVerified: true},
       { new: true }
     );
     res.status(200).json({
@@ -308,7 +315,8 @@ exports.verifyBusinessProfile = async (req, res) => {
         id: verifiedBusinessProfile._id,
         verified: verifiedBusinessProfile.verified,
         rating: verifiedBusinessProfile.rating,
-      }
+      },
+      mechanicBusinessVerified: mechanic.businessVerified
     });
     
   } catch (error) {
