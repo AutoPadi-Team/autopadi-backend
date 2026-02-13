@@ -164,6 +164,13 @@ exports.acceptUrgentRequest = async (req, res) => {
         path: "profileImage",
         select: "-_id image",
       },
+    }).populate({
+      path: "driverId",
+      select: "fullName phoneNumber email",
+      populate: {
+        path: "profileImage",
+        select: "-_id image",
+      },
     });
 
     // notify driver

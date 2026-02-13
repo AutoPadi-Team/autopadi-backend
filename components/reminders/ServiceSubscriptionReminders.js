@@ -96,7 +96,7 @@ const ServiceSubscriptionReminders = async () => {
         console.log(`Sent use reminder (${daysLeft} days left)`);
       }
     }
-      console.log(`Checked subscriptions at ${now.toISOString()}`);
+      console.log(`Checked subscriptions at ${now.toDateString()}`);
   } catch (error) {
     console.error("Error in service subscription reminders:", error.message);
   }
