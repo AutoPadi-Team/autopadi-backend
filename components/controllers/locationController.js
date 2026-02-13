@@ -39,11 +39,19 @@ exports.getAllNearbyMechanicsLocations = async (req, res) => {
       Math.floor(parseFloat(meters) / parseFloat(speedMinutes)),
     );
 
+    const mechanicWithEta = mechanics.map((mech, index) => {
+      const etaMinutes = Math.floor(parseFloat(metersDistances[index]) / parseFloat(speedMinutes));
+      return {
+        ...mech.toObject(),
+        etaMinutes
+      }
+    })
+
     res.status(200).json({
       success: true,
       message: "Mechanics locations retrieved successfully",
-      mechanics,
-      etaMinutes: estimatedTimes,
+      mechanics: mechanicWithEta,
+      // etaMinutes: estimatedTimes,
     });
   } catch (error) {
     res.status(500).json({
